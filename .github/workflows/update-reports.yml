@@ -1,0 +1,39 @@
+name: Update Red Blood Journal archive
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 9 * * *"
+
+permissions:
+  contents: write
+
+jobs:
+  update-reports:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Build reports.json from Substack sitemap
+        run: python scripts/update_reports.py
+
+      - name: Commit changes if archive changed
+        run: |
+          if git diff --quiet -- reports.json; then
+            echo "No archive changes."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add reports.json
+          git commit -m "Auto-update Red Blood Journal archive"
+          git push
