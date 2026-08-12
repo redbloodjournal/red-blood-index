@@ -824,7 +824,7 @@ const esc = s => String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">
 const num = r => parseInt(String(r.id).replace(/\D/g,"")) || 0;
 
 function storyHTML(r) {
-  const img = COVERS[r.id];
+  const img = r.image || COVERS[r.id];
   return `<a class="story" href="${esc(r.url)}" target="_blank" rel="noopener">
     <div class="story-img">${img?`<img loading="lazy" src="${img}" alt="${esc(r.title)} cover">`:`<div class="fallback">🩸</div>`}</div>
     <div class="story-body"><div class="story-meta">#${esc(r.id)} • ${esc(r.category)}</div>
