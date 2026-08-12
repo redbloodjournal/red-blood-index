@@ -3,7 +3,7 @@ name: Update Red Blood Journal archive
 on:
   workflow_dispatch:
   schedule:
-    - cron: "17 9 * * *"
+    - cron: "17 * * * *"
 
 permissions:
   contents: write
