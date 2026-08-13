@@ -15,6 +15,9 @@ OUTPUT = Path("reports.json")
 # Always recheck this many newest reports every hourly run.
 LATEST_TO_ENRICH = 25
 
+# Gradually import tags/categories for older reports.
+BACKFILL_BATCH = 50
+
 
 CATEGORY_RULES = {
     "Politics & Geopolitics": [
@@ -757,17 +760,27 @@ def main():
     refresh_urls = set()
 
     # Always refresh newest reports.
-    for report in out[
-        :LATEST_TO_ENRICH
-    ]:
+    for report in out[:LATEST_TO_ENRICH]:
         refresh_urls.add(
             report["url"]
         )
 
+    # Gradually backfill older reports that do not have imported tags yet.
+    backfill_count = 0
+
+    for report in out[LATEST_TO_ENRICH:]:
+        if backfill_count >= BACKFILL_BATCH:
+            break
+
+        if not report.get("tags"):
+            refresh_urls.add(
+                report["url"]
+            )
+            backfill_count += 1
+
     # Also refresh any article whose
     # sitemap modification date changed.
     for report in out:
-
         if (
             report.get(
                 "lastmod",
