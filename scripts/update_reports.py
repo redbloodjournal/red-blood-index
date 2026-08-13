@@ -12,7 +12,7 @@ from urllib.parse import urlparse
 SITEMAP_URL = "https://redblood.win/sitemap.xml"
 OUTPUT = Path("reports.json")
 
-# Always refresh this many newest reports.
+# Always recheck this many newest reports every hourly run.
 LATEST_TO_ENRICH = 25
 
 
@@ -133,7 +133,6 @@ CATEGORY_RULES = {
         "fear",
         "children",
         "marriage",
-        "culture of fear",
     ],
 
     "History, Culture & Religion": [
@@ -166,7 +165,8 @@ def fetch(url):
     req = urllib.request.Request(
         url,
         headers={
-            "User-Agent": "RedBloodJournalArchiveBot/1.0"
+            "User-Agent": "RedBloodJournalArchiveBot/2.0",
+            "Accept": "application/json,text/html,*/*",
         },
     )
 
@@ -176,10 +176,7 @@ def fetch(url):
 
 def clean_tag(value):
     value = str(value or "").strip()
-
-    value = re.sub(r"\s+", " ", value)
-
-    return value
+    return re.sub(r"\s+", " ", value)
 
 
 def add_unique(items, value):
@@ -212,11 +209,19 @@ def extract_id(slug):
 def title_from_slug(slug, rid):
     base = (
         slug[len(rid) + 1:]
-        if rid and slug.lower().startswith(rid.lower() + "-")
+        if rid
+        and slug.lower().startswith(
+            rid.lower() + "-"
+        )
         else slug
     )
 
-    return base.replace("-", " ").strip().title()
+    return (
+        base
+        .replace("-", " ")
+        .strip()
+        .title()
+    )
 
 
 class MetaParser(HTMLParser):
@@ -227,151 +232,229 @@ class MetaParser(HTMLParser):
         self.title = ""
         self.tags = []
 
-        self.in_json_ld = False
-        self.json_ld_chunks = []
-
     def handle_starttag(self, tag, attrs):
-        tag = tag.lower()
-        data = dict(attrs)
-
-        if tag == "meta":
-            prop = (
-                data.get("property", "")
-                or data.get("name", "")
-            ).lower()
-
-            content = data.get("content", "").strip()
-
-            if (
-                prop == "og:image"
-                and content
-                and not self.image
-            ):
-                self.image = content
-
-            if (
-                prop == "og:title"
-                and content
-                and not self.title
-            ):
-                self.title = content
-
-            # Common article-tag metadata.
-            if prop in (
-                "article:tag",
-                "keywords",
-                "news_keywords",
-            ) and content:
-
-                if prop == "article:tag":
-                    add_unique(
-                        self.tags,
-                        content
-                    )
-
-                else:
-                    for item in content.split(","):
-                        add_unique(
-                            self.tags,
-                            item
-                        )
-
-        # Some sites expose tags as clickable topic links.
-        if tag == "a":
-            href = data.get("href", "")
-
-            if (
-                "/tag/" in href
-                or "/tags/" in href
-                or "/topic/" in href
-            ):
-                slug = href.rstrip("/").split("/")[-1]
-
-                slug = slug.replace("-", " ").strip()
-
-                if slug:
-                    add_unique(
-                        self.tags,
-                        slug
-                    )
-
-        # Capture JSON-LD.
-        if tag == "script":
-            script_type = data.get(
-                "type",
-                ""
-            ).lower()
-
-            if script_type == "application/ld+json":
-                self.in_json_ld = True
-                self.json_ld_chunks = []
-
-    def handle_endtag(self, tag):
-        if (
-            tag.lower() == "script"
-            and self.in_json_ld
-        ):
-            self.in_json_ld = False
-
-            raw = "".join(
-                self.json_ld_chunks
-            ).strip()
-
-            if raw:
-                self.extract_json_ld_tags(raw)
-
-            self.json_ld_chunks = []
-
-    def handle_data(self, data):
-        if self.in_json_ld:
-            self.json_ld_chunks.append(data)
-
-    def extract_json_ld_tags(self, raw):
-        try:
-            parsed = json.loads(raw)
-        except Exception:
+        if tag.lower() != "meta":
             return
 
-        def walk(obj):
-            if isinstance(obj, dict):
+        data = dict(attrs)
 
-                for key, value in obj.items():
+        prop = (
+            data.get("property", "")
+            or data.get("name", "")
+        ).lower()
 
-                    if key.lower() in (
-                        "keywords",
-                        "articleSection".lower(),
-                    ):
-                        self.add_json_value(value)
+        content = (
+            data.get("content", "")
+            .strip()
+        )
 
-                    walk(value)
+        if (
+            prop == "og:image"
+            and content
+            and not self.image
+        ):
+            self.image = content
 
-            elif isinstance(obj, list):
+        if (
+            prop == "og:title"
+            and content
+            and not self.title
+        ):
+            self.title = content
 
-                for item in obj:
-                    walk(item)
+        # Keep HTML tag methods as fallback.
+        if prop in (
+            "article:tag",
+            "keywords",
+            "news_keywords",
+        ) and content:
 
-        walk(parsed)
-
-    def add_json_value(self, value):
-        if isinstance(value, str):
-
-            for item in value.split(","):
+            if prop == "article:tag":
                 add_unique(
                     self.tags,
-                    item
+                    content
                 )
 
-        elif isinstance(value, list):
-
-            for item in value:
-                if isinstance(item, str):
+            else:
+                for item in content.split(","):
                     add_unique(
                         self.tags,
                         item
                     )
 
 
+def extract_tags_from_api(data):
+    """
+    Search Substack JSON for likely tag containers.
+
+    We deliberately search several possible key names so
+    small Substack API changes do not immediately break us.
+    """
+
+    found = []
+
+    interesting_keys = {
+        "tags",
+        "tag",
+        "posttags",
+        "post_tags",
+        "posttag",
+        "post_tags_data",
+        "publicationtags",
+        "publication_tags",
+    }
+
+    def add_tag_value(value):
+
+        if isinstance(value, str):
+            add_unique(
+                found,
+                value
+            )
+
+        elif isinstance(value, list):
+
+            for item in value:
+                add_tag_value(item)
+
+        elif isinstance(value, dict):
+
+            # Typical object structures:
+            # {"name": "Politics"}
+            # {"title": "Politics"}
+            # {"tag": "Politics"}
+            for key in (
+                "name",
+                "title",
+                "tag",
+                "display_name",
+                "displayName",
+            ):
+                candidate = value.get(key)
+
+                if isinstance(
+                    candidate,
+                    str
+                ):
+                    add_unique(
+                        found,
+                        candidate
+                    )
+
+            # Sometimes tags are nested further.
+            for child in value.values():
+
+                if isinstance(
+                    child,
+                    (dict, list)
+                ):
+                    add_tag_value(child)
+
+    def walk(obj):
+
+        if isinstance(obj, dict):
+
+            for key, value in obj.items():
+
+                normalized = (
+                    str(key)
+                    .replace("-", "")
+                    .replace("_", "")
+                    .lower()
+                )
+
+                normalized_targets = {
+                    item
+                    .replace("-", "")
+                    .replace("_", "")
+                    .lower()
+                    for item
+                    in interesting_keys
+                }
+
+                if normalized in normalized_targets:
+                    add_tag_value(value)
+
+                walk(value)
+
+        elif isinstance(obj, list):
+
+            for item in obj:
+                walk(item)
+
+    walk(data)
+
+    return found
+
+
+def get_api_metadata(article_url):
+    """
+    Try Substack's publication post endpoint.
+
+    Example:
+    https://redblood.win/api/v1/posts/article-slug
+    """
+
+    parsed = urlparse(article_url)
+
+    slug = (
+        parsed.path
+        .split("/p/", 1)[1]
+        .strip("/")
+    )
+
+    api_url = (
+        f"{parsed.scheme}://"
+        f"{parsed.netloc}"
+        f"/api/v1/posts/{slug}"
+    )
+
+    try:
+        raw = fetch(api_url)
+
+        data = json.loads(
+            raw.decode(
+                "utf-8",
+                errors="ignore"
+            )
+        )
+
+        tags = extract_tags_from_api(
+            data
+        )
+
+        return {
+            "tags": tags,
+            "api_url": api_url,
+        }
+
+    except Exception as error:
+
+        print(
+            f"API metadata unavailable "
+            f"for {article_url}: {error}"
+        )
+
+        return {
+            "tags": [],
+            "api_url": api_url,
+        }
+
+
 def get_article_metadata(url):
+    """
+    Retrieve title + image from HTML,
+    and tags from Substack JSON API.
+    """
+
+    result = {
+        "image": "",
+        "title": "",
+        "tags": [],
+    }
+
+    # HTML keeps the cover-image system
+    # that is already working.
     try:
         page = fetch(url).decode(
             "utf-8",
@@ -381,29 +464,52 @@ def get_article_metadata(url):
         parser = MetaParser()
         parser.feed(page)
 
-        return {
-            "image": parser.image,
-            "title": parser.title,
-            "tags": parser.tags,
-        }
+        result["image"] = parser.image
+        result["title"] = parser.title
+
+        for tag in parser.tags:
+            add_unique(
+                result["tags"],
+                tag
+            )
 
     except Exception as error:
+
         print(
-            f"Could not enrich {url}: "
-            f"{error}"
+            f"Could not read HTML "
+            f"{url}: {error}"
         )
 
-        return {
-            "image": "",
-            "title": "",
-            "tags": [],
-        }
+    # Try Substack post JSON for real tags.
+    api_meta = get_api_metadata(url)
+
+    for tag in api_meta["tags"]:
+        add_unique(
+            result["tags"],
+            tag
+        )
+
+    if result["tags"]:
+
+        print(
+            f"Tags found for {url}: "
+            f"{result['tags']}"
+        )
+
+    else:
+
+        print(
+            f"No tags found for {url}"
+        )
+
+    return result
 
 
 def classify_report(title, tags):
     scores = {
         category: 0
-        for category in CATEGORY_RULES
+        for category
+        in CATEGORY_RULES
     }
 
     title_text = str(
@@ -415,12 +521,18 @@ def classify_report(title, tags):
         for tag in tags
     ]
 
-    for category, keywords in CATEGORY_RULES.items():
+    for category, keywords in (
+        CATEGORY_RULES.items()
+    ):
 
         for keyword in keywords:
-            keyword = keyword.lower()
 
-            # Tags are strongest evidence.
+            keyword = (
+                keyword.lower()
+            )
+
+            # Tags are deliberately given
+            # much more weight than title words.
             for tag in tag_texts:
 
                 if (
@@ -428,11 +540,14 @@ def classify_report(title, tags):
                     or keyword in tag
                     or tag in keyword
                 ):
-                    scores[category] += 5
+                    scores[
+                        category
+                    ] += 5
 
-            # Title is secondary evidence.
             if keyword in title_text:
-                scores[category] += 1
+                scores[
+                    category
+                ] += 1
 
     highest_score = max(
         scores.values()
@@ -469,12 +584,18 @@ def load_existing_reports():
         )
 
         return {
-            report.get("url", ""): report
+            report.get(
+                "url",
+                ""
+            ): report
+
             for report in existing
+
             if report.get("url")
         }
 
     except Exception as error:
+
         print(
             "Could not read existing "
             f"reports.json: {error}"
@@ -484,6 +605,7 @@ def load_existing_reports():
 
 
 def main():
+
     existing_reports = (
         load_existing_reports()
     )
@@ -522,7 +644,9 @@ def main():
         ):
             continue
 
-        url = loc.text.strip()
+        url = (
+            loc.text.strip()
+        )
 
         if (
             "/p/" not in url
@@ -538,14 +662,18 @@ def main():
             .split("/p/", 1)[1]
         )
 
-        rid = extract_id(slug)
+        rid = extract_id(
+            slug
+        )
 
         sitemap_lastmod = (
             lm.text.strip()
+
             if (
                 lm is not None
                 and lm.text
             )
+
             else ""
         )
 
@@ -557,9 +685,11 @@ def main():
         )
 
         report = {
+
             "id": rid,
 
-            "title": previous.get(
+            "title":
+            previous.get(
                 "title",
                 title_from_slug(
                     slug,
@@ -573,7 +703,8 @@ def main():
                 ""
             ),
 
-            "url": url,
+            "url":
+            url,
 
             "image":
             previous.get(
@@ -609,9 +740,11 @@ def main():
             ),
         }
 
-        out.append(report)
+        out.append(
+            report
+        )
 
-    # Newest first.
+    # Newest reports first.
     out.sort(
         key=lambda item:
         item.get(
@@ -621,13 +754,9 @@ def main():
         reverse=True
     )
 
-    # Determine which reports should be refreshed.
-    #
-    # Always refresh newest 25.
-    # Also refresh any report whose sitemap
-    # lastmod changed since previous run.
     refresh_urls = set()
 
+    # Always refresh newest reports.
     for report in out[
         :LATEST_TO_ENRICH
     ]:
@@ -635,10 +764,15 @@ def main():
             report["url"]
         )
 
+    # Also refresh any article whose
+    # sitemap modification date changed.
     for report in out:
 
         if (
-            report.get("lastmod", "")
+            report.get(
+                "lastmod",
+                ""
+            )
             !=
             report.get(
                 "_previous_lastmod",
@@ -649,7 +783,6 @@ def main():
                 report["url"]
             )
 
-    # Fetch metadata for selected reports.
     for report in out:
 
         if (
@@ -679,8 +812,9 @@ def main():
                 meta["title"]
             )
 
-        # Replace stored tags whenever
-        # Substack exposes current tags.
+        # Important:
+        # If API succeeds and finds current tags,
+        # replace the old list.
         if meta["tags"]:
             report["tags"] = (
                 meta["tags"]
@@ -693,8 +827,9 @@ def main():
             )
         )
 
-    # Remove internal helper key.
+    # Remove internal helper field.
     for report in out:
+
         report.pop(
             "_previous_lastmod",
             None
@@ -711,7 +846,8 @@ def main():
 
     images_found = sum(
         1
-        for report in out[
+        for report
+        in out[
             :LATEST_TO_ENRICH
         ]
         if report.get("image")
@@ -753,9 +889,9 @@ def main():
     )
 
     print(
-        f"{categorized} publications "
-        "currently have a Red Blood "
-        "Journal category"
+        f"{categorized} "
+        "publications currently have "
+        "a Red Blood Journal category"
     )
 
 
