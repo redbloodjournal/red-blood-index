@@ -524,12 +524,35 @@ h1{
   border:1px solid var(--line);
   background:var(--panel);
   border-radius:14px;
-  padding:14px 15px;
+  padding:10px;
   display:grid;
-  grid-template-columns:auto 1fr auto;
+  grid-template-columns:92px auto 1fr auto;
   gap:12px;
-  align-items:start;
+  align-items:center;
   transition:.2s;
+}
+
+.report-thumb{
+  width:92px;
+  aspect-ratio:16/10;
+  border-radius:10px;
+  overflow:hidden;
+  background:linear-gradient(135deg,#111111,#251315);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-shrink:0;
+}
+
+.report-thumb img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
+
+.report-thumb .fallback{
+  font-size:28px;
 }
 
 .report:hover{
@@ -713,7 +736,20 @@ footer{
   }
 
   .report{
-    grid-template-columns:auto 1fr;
+    grid-template-columns:76px 1fr;
+    align-items:center;
+  }
+
+  .report-thumb{
+    width:76px;
+  }
+
+  .rid{
+    min-width:0;
+  }
+
+  .report-main{
+    min-width:0;
   }
 
   .arrow{
@@ -904,10 +940,20 @@ function render() {
   document.getElementById("resultInfo").textContent = `${arr.length} report${arr.length===1?"":"s"} found`;
   const list=document.getElementById("reportList");
   const slice=arr.slice(0,state.visible);
-  list.innerHTML = slice.length ? slice.map(r=>`<a class="report" href="${esc(r.url)}" target="_blank" rel="noopener">
-    <div class="rid">${r.id?`#${esc(r.id)}`:""}</div><div><div class="rtitle">${esc(r.title)}</div>
-    ${r.subtitle?`<span class="rsub">${esc(r.subtitle)}</span>`:""}
-    ${r.tags?.length?`<div class="rtags">${r.tags.slice(0,4).map(t=>`<span>${esc(t)}</span>`).join("")}</div>`:""}</div><div class="arrow">↗</div></a>`).join("")
+  list.innerHTML = slice.length ? slice.map(r=>{
+    const img = r.image || COVERS[r.id];
+    return `<a class="report" href="${esc(r.url)}" target="_blank" rel="noopener">
+      <div class="report-thumb">${img
+        ? `<img loading="lazy" decoding="async" src="${esc(img)}" alt="${esc(r.title)} cover">`
+        : `<div class="fallback" aria-hidden="true">🩸</div>`}
+      </div>
+      <div class="rid">${r.id?`#${esc(r.id)}`:""}</div>
+      <div class="report-main"><div class="rtitle">${esc(r.title)}</div>
+      ${r.subtitle?`<span class="rsub">${esc(r.subtitle)}</span>`:""}
+      ${r.tags?.length?`<div class="rtags">${r.tags.slice(0,4).map(t=>`<span>${esc(t)}</span>`).join("")}</div>`:""}</div>
+      <div class="arrow">↗</div>
+    </a>`;
+  }).join("")
     : `<div class="empty">No reports match that search. Try a report number, person, country or broader topic.</div>`;
   document.getElementById("loadMore").style.display = state.visible < arr.length ? "block":"none";
   [...chips.querySelectorAll(".chip")].forEach(b=>b.classList.toggle("active",b.dataset.filter===state.cat));
