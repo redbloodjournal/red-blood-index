@@ -516,32 +516,37 @@ h1{
 
 .report-list{
   display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:9px;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:18px;
 }
 
 .report{
   border:1px solid var(--line);
   background:var(--panel);
-  border-radius:14px;
-  padding:10px;
-  display:grid;
-  grid-template-columns:92px auto 1fr auto;
-  gap:12px;
-  align-items:center;
-  transition:.2s;
+  border-radius:20px;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  min-width:0;
+  transition:.2s transform,.2s border-color,.2s box-shadow,.2s background;
+}
+
+.report:hover{
+  transform:translateY(-4px);
+  border-color:var(--gold);
+  background:#1D1D1D;
+  box-shadow:var(--shadow);
 }
 
 .report-thumb{
-  width:92px;
-  aspect-ratio:16/10;
-  border-radius:10px;
+  width:100%;
+  aspect-ratio:16/9;
   overflow:hidden;
   background:linear-gradient(135deg,#111111,#251315);
   display:flex;
   align-items:center;
   justify-content:center;
-  flex-shrink:0;
+  position:relative;
 }
 
 .report-thumb img{
@@ -549,55 +554,76 @@ h1{
   height:100%;
   object-fit:cover;
   display:block;
+  transition:transform .35s ease;
+}
+
+.report:hover .report-thumb img{
+  transform:scale(1.025);
 }
 
 .report-thumb .fallback{
-  font-size:28px;
+  font-size:58px;
 }
 
-.report:hover{
-  border-color:var(--gold);
-  background:#1D1D1D;
-  box-shadow:0 10px 30px rgba(0,0,0,.22);
+.report-body{
+  padding:17px 18px 19px;
+  display:flex;
+  flex-direction:column;
+  flex:1;
+  min-width:0;
+}
+
+.report-top{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:9px;
 }
 
 .rid{
   color:var(--red2);
   font-weight:900;
-  min-width:58px;
+  font-size:14px;
+  letter-spacing:.02em;
 }
 
 .rtitle{
-  font-weight:760;
-  line-height:1.3;
+  font-weight:820;
+  font-size:20px;
+  line-height:1.22;
   color:var(--text);
+  overflow-wrap:anywhere;
 }
 
 .rsub{
   display:block;
   color:var(--muted);
-  font-size:12px;
-  margin-top:4px;
+  font-size:13px;
+  line-height:1.45;
+  margin-top:7px;
 }
 
 .rtags{
   display:flex;
-  gap:5px;
+  gap:6px;
   flex-wrap:wrap;
-  margin-top:7px;
+  margin-top:13px;
 }
 
 .rtags span{
-  font-size:10px;
+  font-size:11px;
   border:1px solid var(--line);
   border-radius:999px;
-  padding:3px 7px;
+  padding:5px 8px;
   color:var(--muted);
   background:#0B0B0B;
 }
 
 .arrow{
   color:var(--gold);
+  font-size:17px;
+  flex-shrink:0;
 }
 
 .loadmore{
@@ -735,25 +761,39 @@ footer{
     font-size:52px;
   }
 
+  .report-list{
+    gap:16px;
+  }
+
   .report{
-    grid-template-columns:76px 1fr;
-    align-items:center;
+    border-radius:18px;
   }
 
   .report-thumb{
-    width:76px;
+    width:100%;
+    aspect-ratio:16/9;
   }
 
-  .rid{
-    min-width:0;
+  .report-body{
+    padding:15px 16px 17px;
   }
 
-  .report-main{
-    min-width:0;
+  .rtitle{
+    font-size:21px;
+    line-height:1.2;
+  }
+
+  .rsub{
+    font-size:13px;
+  }
+
+  .rtags span{
+    font-size:11px;
+    padding:5px 8px;
   }
 
   .arrow{
-    display:none;
+    display:block;
   }
 }
 </style>
@@ -935,6 +975,16 @@ function filtered() {
   if(state.sort==="title") arr=[...arr].sort((a,b)=>a.title.localeCompare(b.title));
   return arr;
 }
+function cleanReportTitle(r) {
+  const title = String(r.title || "");
+  if(!r.id) return title;
+
+  const escapedId = String(r.id).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const pattern = new RegExp("^.*?#" + escapedId + "\\s*[—–-]?\\s*", "i");
+
+  return pattern.test(title) ? title.replace(pattern, "").trim() : title;
+}
+
 function render() {
   const arr=filtered();
   document.getElementById("resultInfo").textContent = `${arr.length} report${arr.length===1?"":"s"} found`;
@@ -942,16 +992,22 @@ function render() {
   const slice=arr.slice(0,state.visible);
   list.innerHTML = slice.length ? slice.map(r=>{
     const img = r.image || COVERS[r.id];
+    const displayTitle = cleanReportTitle(r);
+
     return `<a class="report" href="${esc(r.url)}" target="_blank" rel="noopener">
       <div class="report-thumb">${img
-        ? `<img loading="lazy" decoding="async" src="${esc(img)}" alt="${esc(r.title)} cover">`
+        ? `<img loading="lazy" decoding="async" src="${esc(img)}" alt="${esc(displayTitle || r.title)} cover">`
         : `<div class="fallback" aria-hidden="true">🩸</div>`}
       </div>
-      <div class="rid">${r.id?`#${esc(r.id)}`:""}</div>
-      <div class="report-main"><div class="rtitle">${esc(r.title)}</div>
-      ${r.subtitle?`<span class="rsub">${esc(r.subtitle)}</span>`:""}
-      ${r.tags?.length?`<div class="rtags">${r.tags.slice(0,4).map(t=>`<span>${esc(t)}</span>`).join("")}</div>`:""}</div>
-      <div class="arrow">↗</div>
+      <div class="report-body">
+        <div class="report-top">
+          <div class="rid">${r.id?`#${esc(r.id)}`:""}</div>
+          <div class="arrow" aria-hidden="true">↗</div>
+        </div>
+        <div class="rtitle">${esc(displayTitle || r.title)}</div>
+        ${r.subtitle?`<span class="rsub">${esc(r.subtitle)}</span>`:""}
+        ${r.tags?.length?`<div class="rtags">${r.tags.slice(0,4).map(t=>`<span>${esc(t)}</span>`).join("")}</div>`:""}
+      </div>
     </a>`;
   }).join("")
     : `<div class="empty">No reports match that search. Try a report number, person, country or broader topic.</div>`;
