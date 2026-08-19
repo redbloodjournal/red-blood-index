@@ -1023,17 +1023,81 @@ function render() {
   document.getElementById("loadMore").style.display = state.visible < arr.length ? "block":"none";
   [...chips.querySelectorAll(".chip")].forEach(b=>b.classList.toggle("active",b.dataset.filter===state.cat));
 }
-function setQuery(q) {
+function sanitizeAnalyticsSearchTerm(value) {
+  return String(value || "")
+    .trim()
+    .slice(0,100)
+    .replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi,"[redacted-email]")
+    .replace(/\b\d{7,}\b/g,"[redacted-number]");
+}
+
+let journalSearchTimer = null;
+let lastTrackedJournalSearch = "";
+
+function trackJournalSearch(term, source) {
+  const cleanTerm = sanitizeAnalyticsSearchTerm(term);
+  if(cleanTerm.length < 2) return;
+
+  const signature = source + "|" + cleanTerm.toLowerCase();
+  if(signature === lastTrackedJournalSearch) return;
+  lastTrackedJournalSearch = signature;
+
+  if(typeof gtag === "function"){
+    gtag("event","journal_search",{
+      search_term: cleanTerm,
+      search_source: source
+    });
+  }
+}
+
+function scheduleJournalSearchTracking(term, source) {
+  clearTimeout(journalSearchTimer);
+  journalSearchTimer = setTimeout(()=>{
+    trackJournalSearch(term,source);
+  },1200);
+}
+
+function setQuery(q, source="quick_tag") {
   state.q=q.trim(); state.visible=40;
   document.getElementById("heroSearch").value=q;
   document.getElementById("librarySearch").value=q;
   document.getElementById("library").scrollIntoView({behavior:"smooth"});
   render();
+  trackJournalSearch(q,source);
 }
-document.getElementById("heroSearch").addEventListener("input",e=>{state.q=e.target.value;document.getElementById("librarySearch").value=e.target.value;state.visible=40;render()});
-document.getElementById("heroSearch").addEventListener("keydown",e=>{if(e.key==="Enter")document.getElementById("library").scrollIntoView({behavior:"smooth"})});
-document.getElementById("librarySearch").addEventListener("input",e=>{state.q=e.target.value;document.getElementById("heroSearch").value=e.target.value;state.visible=40;render()});
-document.querySelectorAll("[data-q]").forEach(b=>b.onclick=()=>setQuery(b.dataset.q));
+
+document.getElementById("heroSearch").addEventListener("input",e=>{
+  state.q=e.target.value;
+  document.getElementById("librarySearch").value=e.target.value;
+  state.visible=40;
+  render();
+  scheduleJournalSearchTracking(e.target.value,"hero_search");
+});
+
+document.getElementById("heroSearch").addEventListener("keydown",e=>{
+  if(e.key==="Enter"){
+    clearTimeout(journalSearchTimer);
+    trackJournalSearch(e.target.value,"hero_search");
+    document.getElementById("library").scrollIntoView({behavior:"smooth"});
+  }
+});
+
+document.getElementById("librarySearch").addEventListener("input",e=>{
+  state.q=e.target.value;
+  document.getElementById("heroSearch").value=e.target.value;
+  state.visible=40;
+  render();
+  scheduleJournalSearchTracking(e.target.value,"library_search");
+});
+
+document.getElementById("librarySearch").addEventListener("keydown",e=>{
+  if(e.key==="Enter"){
+    clearTimeout(journalSearchTimer);
+    trackJournalSearch(e.target.value,"library_search");
+  }
+});
+
+document.querySelectorAll("[data-q]").forEach(b=>b.onclick=()=>setQuery(b.dataset.q,"quick_tag"));
   document.querySelectorAll(".category-card").forEach(card=>{
   card.onclick=()=>{
     state.cat=card.dataset.cat;
