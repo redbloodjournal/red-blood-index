@@ -765,14 +765,14 @@ def main():
             report["url"]
         )
 
-    # Gradually backfill older reports that do not have imported tags yet.
+    # Gradually backfill older reports missing tags or cover images.
     backfill_count = 0
 
     for report in out[LATEST_TO_ENRICH:]:
         if backfill_count >= BACKFILL_BATCH:
             break
 
-        if not report.get("tags"):
+        if not report.get("tags") or not report.get("image"):
             refresh_urls.add(
                 report["url"]
             )
