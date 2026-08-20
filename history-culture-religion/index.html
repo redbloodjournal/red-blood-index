@@ -47,14 +47,142 @@ function filtered(){
  return a;
 }
 function render(){
- const a=filtered(); document.getElementById("info").textContent=`${a.length} report${a.length===1?"":"s"} found`;
- document.getElementById("grid").innerHTML=a.length?a.map(r=>`<a class="card" href="${esc(r.url)}" target="_blank" rel="noopener">
- <div class="rid">#${esc(r.id)}</div><div><div class="title">${esc(r.title)}</div>${r.subtitle?`<span class="sub">${esc(r.subtitle)}</span>`:""}
- ${r.tags?.length?`<div class="tiny-tags">${r.tags.slice(0,5).map(t=>`<span>${esc(t)}</span>`).join("")}</div>`:""}</div><div class="arrow">↗</div></a>`).join(""):`<div class="empty">No matching reports in this category.</div>`;
+  const a=filtered();
+
+  document.getElementById("info").textContent=
+    `${a.length} report${a.length===1?"":"s"} found`;
+
+  document.getElementById("grid").innerHTML=a.length?a.map(r=>`
+    <a class="card"
+       href="${esc(r.url)}"
+       target="_blank"
+       rel="noopener"
+       style="display:grid;grid-template-columns:180px 1fr auto;gap:18px;align-items:center;overflow:hidden;">
+
+      <div style="
+        width:180px;
+        aspect-ratio:16/9;
+        border-radius:12px;
+        overflow:hidden;
+        background:#111;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+      ">
+        ${
+          r.image
+          ? `<img
+               src="${esc(r.image)}"
+               alt="${esc(r.title)} cover"
+               loading="lazy"
+               decoding="async"
+               style="width:100%;height:100%;object-fit:cover;display:block;"
+             >`
+          : `<div style="font-size:36px;">🩸</div>`
+        }
+      </div>
+
+      <div>
+        <div class="rid">#${esc(r.id)}</div>
+        <div class="title">${esc(r.title)}</div>
+
+        ${r.subtitle
+          ? `<span class="sub">${esc(r.subtitle)}</span>`
+          : ""
+        }
+
+        ${r.tags?.length
+          ? `<div class="tiny-tags">
+              ${r.tags.slice(0,5).map(t=>`<span>${esc(t)}</span>`).join("")}
+             </div>`
+          : ""
+        }
+      </div>
+
+      <div class="arrow">↗</div>
+    </a>
+  `).join("")
+  : `<div class="empty">No matching reports in this category.</div>`;
 }
-document.getElementById("search").oninput=e=>{q=e.target.value;render()};
-document.getElementById("sort").onchange=e=>{sort=e.target.value;render()};
-document.querySelectorAll("[data-tag]").forEach(b=>b.onclick=()=>{tag=(tag===b.dataset.tag?"":b.dataset.tag);document.querySelectorAll("[data-tag]").forEach(x=>x.style.borderColor=(x.dataset.tag===tag?"#c91f3f":""));render()});
-render();
+
+
+async function loadReportImages(){
+
+  try{
+
+    const response=await fetch("/reports.json");
+
+    if(!response.ok){
+      throw new Error("Could not load reports.json");
+    }
+
+    const archive=await response.json();
+
+    const byUrl=new Map(
+      archive.map(r=>[
+        String(r.url||"").replace(/\/$/,""),
+        r
+      ])
+    );
+
+    const byId=new Map(
+      archive.map(r=>[
+        String(r.id||""),
+        r
+      ])
+    );
+
+    DATA.forEach(r=>{
+
+      const urlKey=String(r.url||"").replace(/\/$/,"");
+
+      const match=
+        byUrl.get(urlKey) ||
+        byId.get(String(r.id||""));
+
+      if(match?.image){
+        r.image=match.image;
+      }
+
+    });
+
+  }catch(err){
+
+    console.warn(
+      "Report images could not be loaded:",
+      err
+    );
+
+  }
+
+  render();
+}
+
+
+document.getElementById("search").oninput=e=>{
+  q=e.target.value;
+  render();
+};
+
+document.getElementById("sort").onchange=e=>{
+  sort=e.target.value;
+  render();
+};
+
+document.querySelectorAll("[data-tag]").forEach(b=>
+  b.onclick=()=>{
+    tag=(tag===b.dataset.tag?"":b.dataset.tag);
+
+    document.querySelectorAll("[data-tag]").forEach(x=>
+      x.style.borderColor=
+        (x.dataset.tag===tag?"#c91f3f":"")
+    );
+
+    render();
+  }
+);
+
+
+loadReportImages();
 </script>
 </body></html>
