@@ -13,10 +13,10 @@ SITEMAP_URL = "https://redblood.win/sitemap.xml"
 OUTPUT = Path("reports.json")
 
 # Always recheck this many newest reports every hourly run.
-LATEST_TO_ENRICH = 25
+LATEST_TO_ENRICH = 10
 
 # Gradually import tags/categories for older reports.
-BACKFILL_BATCH = 50
+BACKFILL_BATCH = 10
 
 
 CATEGORY_RULES = {
