@@ -501,13 +501,12 @@ h1{
 .report-thumb img{
   width:100%;
   height:100%;
-  object-fit:cover;
+  object-fit:contain;
   display:block;
-  transition:transform .35s ease;
 }
 
 .report:hover .report-thumb img{
-  transform:scale(1.025);
+  transform:none;
 }
 
 .report-thumb .fallback{
