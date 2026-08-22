@@ -791,6 +791,44 @@ footer{
   transform:none !important;
 }
 
+
+/* FINAL RBJ POLITICS IMAGE FIX
+   Do not force report artwork into a 16:9 frame.
+   Let every image keep its original aspect ratio. */
+.report-thumb{
+  width:100% !important;
+  height:auto !important;
+  aspect-ratio:auto !important;
+  min-height:0 !important;
+  overflow:hidden !important;
+  display:block !important;
+  background:#0B0B0B !important;
+}
+.report-thumb img{
+  width:100% !important;
+  height:auto !important;
+  max-height:none !important;
+  aspect-ratio:auto !important;
+  object-fit:initial !important;
+  object-position:initial !important;
+  display:block !important;
+  transform:none !important;
+}
+.report:hover .report-thumb img{
+  transform:none !important;
+}
+@media(max-width:620px){
+  .report-thumb{
+    width:100% !important;
+    height:auto !important;
+    aspect-ratio:auto !important;
+  }
+  .report-thumb img{
+    width:100% !important;
+    height:auto !important;
+  }
+}
+
 </style>
 </head>
 <body>
