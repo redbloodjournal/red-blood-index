@@ -318,7 +318,7 @@ h1{
 .story-img img{
   width:100%;
   height:100%;
-  object-fit:cover;
+  object-fit:contain;
   display:block;
 }
 
@@ -503,13 +503,14 @@ h1{
 .report-thumb img{
   width:100%;
   height:100%;
-  object-fit:cover;
+  object-fit:contain;
+  object-position:center;
   display:block;
-  transition:transform .35s ease;
+  transition:none;
 }
 
 .report:hover .report-thumb img{
-  transform:scale(1.025);
+  transform:none;
 }
 
 .report-thumb .fallback{
@@ -773,6 +774,23 @@ footer{
 .report .rsub{display:block}
 .empty{margin-top:12px}
 @media(max-width:900px){.page-hero{grid-template-columns:1fr;gap:22px;padding-top:52px}.category-controls{grid-template-columns:1fr}.backline{align-items:flex-start;flex-direction:column}.page-title .icon{font-size:44px}}
+
+/* RBJ Politics image fix: show the complete artwork; never crop report covers */
+.report-thumb{
+  aspect-ratio:16/9;
+  background:#0B0B0B;
+}
+.report-thumb img{
+  width:100% !important;
+  height:100% !important;
+  object-fit:contain !important;
+  object-position:center center !important;
+  transform:none !important;
+}
+.report:hover .report-thumb img{
+  transform:none !important;
+}
+
 </style>
 </head>
 <body>
