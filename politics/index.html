@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="icon" href="/fav.ico" type="image/x-icon">
+<link rel="shortcut icon" href="/fav.ico" type="image/x-icon">
 <title>Politics &amp; Geopolitics — Red Blood Journal</title>
 <meta name="description" content="Iran, the United States, Israel, war, diplomacy, sovereignty and global power. Browse 130 Red Blood Journal reports in this category.">
 <meta name="robots" content="index,follow,max-image-preview:large">
 <link rel="canonical" href="https://redbloodjournal.com/politics/">
-<link rel="icon" href="/fav.ico" type="image/x-icon">
-<link rel="shortcut icon" href="/fav.ico" type="image/x-icon">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Red Blood Journal">
 <meta property="og:title" content="Politics &amp; Geopolitics — Red Blood Journal">
@@ -491,6 +491,7 @@ h1{
 
 .report-thumb{
   width:100%;
+  aspect-ratio:16/9;
   overflow:hidden;
   background:linear-gradient(135deg,#111111,#251315);
   display:flex;
@@ -501,13 +502,14 @@ h1{
 
 .report-thumb img{
   width:100%;
-  height:auto;
-  object-fit:contain;
+  height:100%;
+  object-fit:cover;
   display:block;
+  transition:transform .35s ease;
 }
 
 .report:hover .report-thumb img{
-  transform:none;
+  transform:scale(1.025);
 }
 
 .report-thumb .fallback{
@@ -720,6 +722,7 @@ footer{
 
   .report-thumb{
     width:100%;
+    aspect-ratio:16/9;
   }
 
   .report-body{
@@ -789,7 +792,37 @@ const num=r=>parseInt(String(r.id).replace(/\D/g,""))||0;
 let q="",tag="",sort="numdesc";
 function filtered(){let a=DATA.filter(r=>{const hay=(r.id+" "+(r.title||"")+" "+(r.subtitle||"")+" "+(r.tags||[]).join(" ")).toLowerCase();const okQ=!q||hay.includes(q.toLowerCase());const okTag=!tag||(r.tags||[]).includes(tag);return okQ&&okTag;});if(sort==='numdesc') a.sort((x,y)=>(parseInt(y.id)||0)-(parseInt(x.id)||0));if(sort==='numasc') a.sort((x,y)=>(parseInt(x.id)||0)-(parseInt(y.id)||0));if(sort==='title') a.sort((x,y)=>(x.title||'').localeCompare(y.title||''));return a;}
 function render(){const a=filtered();document.getElementById('reportCount').textContent=String(a.length);document.getElementById('info').textContent=`${a.length} report${a.length===1?'':'s'} found` + (tag ? ` · filtered by ${tag}` : '');document.getElementById('grid').innerHTML=a.length ? a.map(r=>`<a class="report" href="${esc(r.url)}" target="_blank" rel="noopener"><div class="report-thumb">${r.image ? `<img src="${esc(r.image)}" alt="${esc(r.title)} cover" loading="lazy" decoding="async">` : `<div class="fallback">🩸</div>`}</div><div class="report-body"><div class="report-top"><div class="rid">#${esc(r.id)}</div><div class="arrow">↗</div></div><span class="rtitle">${esc(r.title)}</span>${r.subtitle ? `<span class="rsub">${esc(r.subtitle)}</span>` : ''}${r.tags?.length ? `<div class="rtags">${r.tags.slice(0,5).map(t=>`<span>${esc(t)}</span>`).join('')}</div>` : ''}</div></a>`).join('') : `<div class="empty">No matching reports in this category.</div>`;document.querySelectorAll('#categoryChips [data-tag]').forEach(btn=>btn.classList.toggle('active', btn.dataset.tag===tag));}
-async function loadReportImages(){try{const response=await fetch('/reports.json');if(!response.ok) throw new Error('Could not load reports.json');const archive=await response.json();const byUrl=new Map(archive.map(r=>[String(r.url||'').replace(/\/$/,''), r]));const byId=new Map(archive.map(r=>[String(r.id||''), r]));DATA.forEach(r=>{const match=byUrl.get(String(r.url||'').replace(/\/$/,'')) || byId.get(String(r.id||''));if(match?.image) r.image=match.image;});}catch(err){console.warn('Report images could not be loaded:', err);}render();}
+async function loadReportImages(){
+  try{
+    const [reportsResponse, metadataResponse] = await Promise.all([
+      fetch('/reports.json?ts=' + Date.now()),
+      fetch('/metadata.json?ts=' + Date.now())
+    ]);
+
+    if(!reportsResponse.ok) throw new Error('Could not load reports.json');
+
+    const freshReports = await reportsResponse.json();
+    let metadata = {};
+    if(metadataResponse.ok) metadata = await metadataResponse.json();
+
+    // Use the same report/image source logic as the homepage.
+    const archive = freshReports.map(r => ({
+      ...r,
+      ...(metadata[r.url] || {})
+    }));
+
+    const byUrl = new Map(archive.map(r => [String(r.url||'').replace(/\/$/,''), r]));
+    const byId = new Map(archive.map(r => [String(r.id||''), r]));
+
+    DATA.forEach(r => {
+      const match = byUrl.get(String(r.url||'').replace(/\/$/,'')) || byId.get(String(r.id||''));
+      if(match?.image) r.image = match.image;
+    });
+  }catch(err){
+    console.warn('Report images could not be loaded:', err);
+  }
+  render();
+}
 document.getElementById('search').oninput=e=>{q=e.target.value;render();};document.getElementById('sort').onchange=e=>{sort=e.target.value;render();};document.getElementById('clearBtn').onclick=()=>{q='';tag='';sort='numdesc';document.getElementById('search').value='';document.getElementById('sort').value='numdesc';render();};document.querySelectorAll('#categoryChips [data-tag]').forEach(b=>b.onclick=()=>{tag=(tag===b.dataset.tag?'':b.dataset.tag);render();});loadReportImages();
 </script>
 </body></html>
