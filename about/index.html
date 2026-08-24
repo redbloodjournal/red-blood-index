@@ -1,0 +1,909 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-16V1EX0PXJ"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-16V1EX0PXJ');
+  </script>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>About Red Blood Journal | Independent Journalism & Analysis</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <meta name="description" content="About Red Blood Journal, an independent publication and searchable reader archive covering investigations, geopolitics, technology, health, society, history, spirituality and consciousness.">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <link rel="canonical" href="https://redbloodjournal.com/about/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Red Blood Journal">
+  <meta property="og:title" content="About Red Blood Journal | Independent Journalism & Analysis">
+  <meta property="og:description" content="Learn what Red Blood Journal is, what it covers, why it exists, and how its searchable reader archive is organized.">
+  <meta property="og:url" content="https://redbloodjournal.com/about/">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="About Red Blood Journal | Independent Journalism & Analysis">
+  <meta name="twitter:description" content="An independent publication and searchable reader archive covering investigations, geopolitics, technology, health, society, history and consciousness.">
+  <meta name="theme-color" content="#09090b">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://redbloodjournal.com/#organization",
+        "name": "Red Blood Journal",
+        "alternateName": "RedBloodJournal.com",
+        "url": "https://redbloodjournal.com/",
+        "description": "Red Blood Journal is an independent publication and searchable reader archive covering investigations, geopolitics, technology, health, society, history, spirituality and consciousness."
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://redbloodjournal.com/#website",
+        "url": "https://redbloodjournal.com/",
+        "name": "Red Blood Journal",
+        "alternateName": ["RedBloodJournal.com", "Red Blood Journal Reader Library"],
+        "publisher": {"@id": "https://redbloodjournal.com/#organization"}
+      },
+      {
+        "@type": "AboutPage",
+        "@id": "https://redbloodjournal.com/about/#webpage",
+        "url": "https://redbloodjournal.com/about/",
+        "name": "About Red Blood Journal",
+        "isPartOf": {"@id": "https://redbloodjournal.com/#website"},
+        "about": {"@id": "https://redbloodjournal.com/#organization"},
+        "description": "About Red Blood Journal, its editorial purpose, subject coverage and reader archive."
+      }
+    ]
+  }
+  </script>
+
+  <style>
+:root{
+  --bg:#0B0B0B;
+  --panel:#171717;
+  --panel2:#1F1F1F;
+  --line:#3A3A3A;
+
+  --text:#F4EFE3;
+  --muted:#C9C2B8;
+
+  --red:#B51217;
+  --red2:#D71920;
+
+  --gold:#E0B323;
+
+  --ocean:#173B5E;
+  --ocean2:#102A43;
+
+  --sky:#171717;
+  --soft:#111111;
+
+  --shadow:0 18px 50px rgba(181,18,23,.18);
+}
+
+*{box-sizing:border-box}
+
+html{scroll-behavior:smooth}
+
+body{
+  margin:0;
+  background:
+    radial-gradient(circle at 85% -10%,rgba(181,18,23,.18),transparent 32%),
+    linear-gradient(180deg,#171717 0%,var(--bg) 38%,#0B0B0B 100%);
+  color:var(--text);
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  line-height:1.5;
+}
+
+a{
+  color:inherit;
+  text-decoration:none;
+}
+
+button,input,select{
+  font:inherit;
+}
+
+.container{
+  width:min(1220px,calc(100% - 36px));
+  margin:auto;
+}
+
+
+/* TOP NAVIGATION */
+
+.topbar{
+  position:sticky;
+  top:0;
+  z-index:50;
+  background:rgba(11,11,11,.95);
+  backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--line);
+}
+
+.nav{
+  height:70px;
+  display:flex;
+  align-items:center;
+  gap:22px;
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-weight:900;
+  letter-spacing:.17em;
+  font-size:14px;
+  color:var(--text);
+}
+
+.drop{
+  color:var(--red2);
+  font-size:19px;
+}
+
+.brand:after{
+  content:'🌊';
+  font-size:15px;
+  margin-left:2px;
+}
+
+.navlinks{
+  display:flex;
+  gap:18px;
+  margin-left:auto;
+  color:var(--muted);
+  font-size:14px;
+}
+
+.navlinks a{
+  transition:.2s;
+}
+
+.navlinks a:hover{
+  color:var(--gold);
+}
+
+
+/* HERO */
+
+.hero{
+  padding:78px 0 42px;
+  display:grid;
+  grid-template-columns:1.25fr .75fr;
+  gap:48px;
+  align-items:end;
+}
+
+.eyebrow{
+  color:var(--red2);
+  font-weight:800;
+  letter-spacing:.16em;
+  font-size:12px;
+  text-transform:uppercase;
+}
+
+h1{
+  font-size:clamp(46px,7vw,92px);
+  line-height:.94;
+  margin:14px 0 20px;
+  letter-spacing:-.055em;
+  color:var(--text);
+}
+
+.hero p{
+  max-width:760px;
+  color:var(--muted);
+  font-size:clamp(16px,2vw,20px);
+  margin:0;
+}
+
+.hero-panel{
+  border:1px solid var(--line);
+  background:linear-gradient(145deg,#1B1B1B,#101010);
+  border-radius:22px;
+  padding:24px;
+  box-shadow:var(--shadow);
+}
+
+.hero-stat{
+  display:flex;
+  justify-content:space-between;
+  padding:10px 0;
+  border-bottom:1px solid var(--line);
+}
+
+.hero-stat:last-child{
+  border:0;
+}
+
+.hero-stat strong{
+  font-size:24px;
+  color:var(--text);
+}
+
+.hero-stat span{
+  color:var(--muted);
+}
+
+
+/* SEARCH */
+
+.search-wrap{
+  position:relative;
+  margin:16px 0 0;
+}
+
+.search{
+  width:100%;
+  padding:19px 56px 19px 20px;
+  border-radius:16px;
+  border:1px solid var(--line);
+  background:var(--panel);
+  color:var(--text);
+  outline:none;
+  font-size:17px;
+  transition:.2s;
+}
+
+.search::placeholder{
+  color:#8E887F;
+}
+
+.search:focus{
+  border-color:var(--gold);
+  box-shadow:0 0 0 3px rgba(224,179,35,.15);
+}
+
+.search-icon{
+  position:absolute;
+  right:19px;
+  top:18px;
+  color:var(--gold);
+}
+
+
+/* QUICK TAGS AND CHIPS */
+
+.quick-tags{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:12px;
+}
+
+.quick-tags button,
+.chip{
+  border:1px solid var(--line);
+  background:var(--panel);
+  color:var(--text);
+  border-radius:999px;
+  padding:8px 12px;
+  cursor:pointer;
+  transition:.2s;
+}
+
+.quick-tags button:hover,
+.chip:hover{
+  border-color:var(--gold);
+  color:var(--gold);
+  background:#202020;
+}
+
+.chip.active{
+  border-color:var(--red2);
+  color:#FFFFFF;
+  background:var(--red);
+}
+
+
+/* GENERAL SECTIONS */
+
+.section{
+  padding:38px 0;
+}
+
+.section-head{
+  display:flex;
+  justify-content:space-between;
+  gap:20px;
+  align-items:end;
+  margin-bottom:18px;
+}
+
+.section h2{
+  font-size:clamp(28px,4vw,44px);
+  margin:0;
+  letter-spacing:-.03em;
+  color:var(--text);
+}
+
+.section-kicker{
+  color:var(--muted);
+  max-width:690px;
+}
+
+
+/* LATEST REPORTS */
+
+.latest-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:16px;
+}
+
+.story{
+  border:1px solid var(--line);
+  background:var(--panel);
+  border-radius:19px;
+  overflow:hidden;
+  min-height:370px;
+  display:flex;
+  flex-direction:column;
+  transition:.2s transform,.2s border-color,.2s box-shadow;
+}
+
+.story:hover{
+  transform:translateY(-4px);
+  border-color:var(--gold);
+  box-shadow:var(--shadow);
+}
+
+.story-img{
+  aspect-ratio:16/9;
+  background:linear-gradient(135deg,#111111,#251315);
+  overflow:hidden;
+  position:relative;
+}
+
+.story-img img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
+
+.story-img .fallback{
+  height:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:52px;
+}
+
+.story-body{
+  padding:17px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  flex:1;
+}
+
+.story-meta{
+  font-size:12px;
+  color:var(--red2);
+  font-weight:800;
+  letter-spacing:.04em;
+}
+
+.story h3{
+  font-size:19px;
+  line-height:1.25;
+  margin:0;
+  color:var(--text);
+}
+
+.story p{
+  margin:0;
+  color:var(--muted);
+  font-size:14px;
+}
+
+.story .read{
+  margin-top:auto;
+  color:var(--gold);
+  font-size:13px;
+  font-weight:700;
+}
+
+
+/* CATEGORY CARDS */
+
+.category-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:13px;
+}
+
+.category-card{
+  text-align:left;
+  border:1px solid var(--line);
+  border-radius:18px;
+  padding:19px;
+  background:linear-gradient(145deg,#1B1B1B,#111111);
+  color:var(--text);
+  cursor:pointer;
+  min-height:168px;
+  transition:.2s;
+}
+
+.category-card:hover{
+  transform:translateY(-3px);
+  border-color:var(--gold);
+  background:#1F1F1F;
+  box-shadow:var(--shadow);
+}
+
+.category-icon{
+  font-size:25px;
+  display:block;
+  margin-bottom:14px;
+}
+
+.category-name{
+  display:block;
+  font-weight:850;
+  font-size:17px;
+  margin-bottom:4px;
+  color:var(--text);
+}
+
+.category-count{
+  display:block;
+  color:var(--red2);
+  font-size:12px;
+  font-weight:800;
+  margin-bottom:8px;
+}
+
+.category-desc{
+  display:block;
+  color:var(--muted);
+  font-size:13px;
+}
+
+
+/* LIBRARY */
+
+.library{
+  padding-bottom:90px;
+}
+
+.controls{
+  display:grid;
+  grid-template-columns:1fr auto auto;
+  gap:10px;
+  margin:16px 0 14px;
+}
+
+.controls select{
+  border:1px solid var(--line);
+  background:var(--panel);
+  color:var(--text);
+  border-radius:12px;
+  padding:11px 14px;
+  outline:none;
+}
+
+.controls select:focus{
+  border-color:var(--gold);
+}
+
+.chips{
+  display:flex;
+  gap:8px;
+  overflow:auto;
+  padding-bottom:8px;
+  scrollbar-width:thin;
+}
+
+.result-info{
+  color:var(--muted);
+  font-size:14px;
+  margin:9px 0 13px;
+}
+
+
+/* REPORT LIST */
+
+.report-list{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:18px;
+}
+
+.report{
+  border:1px solid var(--line);
+  background:var(--panel);
+  border-radius:20px;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  min-width:0;
+  transition:.2s transform,.2s border-color,.2s box-shadow,.2s background;
+}
+
+.report:hover{
+  transform:translateY(-4px);
+  border-color:var(--gold);
+  background:#1D1D1D;
+  box-shadow:var(--shadow);
+}
+
+.report-thumb{
+  width:100%;
+  aspect-ratio:16/9;
+  overflow:hidden;
+  background:linear-gradient(135deg,#111111,#251315);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+}
+
+.report-thumb img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+  transition:transform .35s ease;
+}
+
+.report:hover .report-thumb img{
+  transform:scale(1.025);
+}
+
+.report-thumb .fallback{
+  font-size:58px;
+}
+
+.report-body{
+  padding:17px 18px 19px;
+  display:flex;
+  flex-direction:column;
+  flex:1;
+  min-width:0;
+}
+
+.report-top{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:9px;
+}
+
+.rid{
+  color:var(--red2);
+  font-weight:900;
+  font-size:14px;
+  letter-spacing:.02em;
+}
+
+.rtitle{
+  font-weight:820;
+  font-size:20px;
+  line-height:1.22;
+  color:var(--text);
+  overflow-wrap:anywhere;
+}
+
+.rsub{
+  display:block;
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.45;
+  margin-top:7px;
+}
+
+.rtags{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+  margin-top:13px;
+}
+
+.rtags span{
+  font-size:11px;
+  border:1px solid var(--line);
+  border-radius:999px;
+  padding:5px 8px;
+  color:var(--muted);
+  background:#0B0B0B;
+}
+
+.arrow{
+  color:var(--gold);
+  font-size:17px;
+  flex-shrink:0;
+}
+
+.loadmore{
+  display:block;
+  margin:22px auto 0;
+  border:1px solid var(--gold);
+  background:var(--panel);
+  color:var(--gold);
+  padding:12px 22px;
+  border-radius:999px;
+  cursor:pointer;
+  transition:.2s;
+}
+
+.loadmore:hover{
+  border-color:var(--red2);
+  background:var(--red);
+  color:#FFFFFF;
+}
+
+
+/* START HERE */
+
+.start-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+}
+
+.start-card{
+  border:1px solid var(--line);
+  background:var(--panel);
+  border-radius:17px;
+  padding:22px;
+  transition:.2s;
+}
+
+.start-card:hover{
+  border-color:var(--gold);
+  transform:translateY(-2px);
+}
+
+.start-card b{
+  font-size:18px;
+  color:var(--text);
+}
+
+.start-card p{
+  color:var(--muted);
+  font-size:14px;
+}
+
+
+/* FOOTER */
+
+footer{
+  border-top:1px solid var(--line);
+  padding:38px 0 56px;
+  color:var(--muted);
+  background:#080808;
+}
+
+.footer-grid{
+  display:flex;
+  justify-content:space-between;
+  gap:24px;
+  flex-wrap:wrap;
+}
+
+.smallcaps{
+  font-size:11px;
+  letter-spacing:.13em;
+  text-transform:uppercase;
+  color:var(--gold);
+}
+
+.notice{
+  margin-top:12px;
+  font-size:12px;
+  max-width:760px;
+}
+
+.empty{
+  border:1px dashed var(--line);
+  border-radius:16px;
+  padding:34px;
+  text-align:center;
+  color:var(--muted);
+  grid-column:1/-1;
+  background:var(--panel);
+}
+
+
+/* MOBILE */
+
+@media(max-width:900px){
+
+  .hero{
+    grid-template-columns:1fr;
+    gap:22px;
+    padding-top:52px;
+  }
+
+  .latest-grid,
+  .category-grid{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .report-list{
+    grid-template-columns:1fr;
+  }
+
+  .navlinks{
+    display:none;
+  }
+}
+
+@media(max-width:620px){
+
+  .container{
+    width:min(100% - 24px,1220px);
+  }
+
+  .latest-grid,
+  .category-grid,
+  .start-grid{
+    grid-template-columns:1fr;
+  }
+
+  .controls{
+    grid-template-columns:1fr;
+  }
+
+  h1{
+    font-size:52px;
+  }
+
+  .report-list{
+    gap:16px;
+  }
+
+  .report{
+    border-radius:18px;
+  }
+
+  .report-thumb{
+    width:100%;
+    aspect-ratio:16/9;
+  }
+
+  .report-body{
+    padding:15px 16px 17px;
+  }
+
+  .rtitle{
+    font-size:21px;
+    line-height:1.2;
+  }
+
+  .rsub{
+    font-size:13px;
+  }
+
+  .rtags span{
+    font-size:11px;
+    padding:5px 8px;
+  }
+
+  .arrow{
+    display:block;
+  }
+}
+
+
+/* ABOUT PAGE */
+.about-hero{padding:82px 0 34px;max-width:980px}
+.about-hero h1{max-width:900px}
+.about-lead{font-size:clamp(19px,2.5vw,26px);max-width:900px;color:var(--text);font-weight:650;line-height:1.45}
+.about-copy{max-width:900px}
+.about-copy p{font-size:17px;color:var(--muted);margin:0 0 20px}
+.about-copy strong{color:var(--text)}
+.about-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:20px}
+.about-card{border:1px solid var(--line);background:var(--panel);border-radius:18px;padding:22px}
+.about-card h3{font-size:20px;margin:0 0 8px;color:var(--text)}
+.about-card p{font-size:14px;margin:0;color:var(--muted)}
+.about-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:18px}
+.about-topic{border:1px solid var(--line);background:linear-gradient(145deg,#1B1B1B,#111111);border-radius:16px;padding:17px;font-weight:750;color:var(--text)}
+.about-cta{border:1px solid var(--gold);background:linear-gradient(145deg,#1B1B1B,#101010);border-radius:20px;padding:28px;margin-top:18px}
+.about-cta p{margin:8px 0 18px;color:var(--muted)}
+.about-links{display:flex;flex-wrap:wrap;gap:9px}
+@media(max-width:900px){.about-grid,.about-list{grid-template-columns:1fr 1fr}}
+@media(max-width:620px){.about-grid,.about-list{grid-template-columns:1fr}.about-hero{padding-top:52px}.about-copy p{font-size:16px}}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="container nav">
+    <a href="/" class="brand"><span class="drop">♦</span> RED BLOOD JOURNAL</a>
+    <nav class="navlinks">
+      <a href="/">Home</a>
+      <a href="/#latest">Latest</a>
+      <a href="/#categories">Categories</a>
+      <a href="/#library">All Reports</a>
+      <a href="/about/" aria-current="page">About</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="container about-hero">
+    <div class="eyebrow">Independent Journalism • Investigations • Analysis</div>
+    <h1>About Red Blood Journal</h1>
+    <p class="about-lead"><strong>Red Blood Journal is an independent publication and searchable reader archive</strong> built for people who want to examine politics, power, technology, health, history, society and consciousness from more than one angle.</p>
+  </section>
+
+  <section class="section">
+    <div class="container about-copy">
+      <div class="section-head">
+        <div><div class="eyebrow">What it is</div><h2>A journal built around questions</h2></div>
+      </div>
+      <p>Red Blood Journal brings together investigations, analysis, commentary and long-form reports across subjects that are often treated as separate. The purpose is not simply to collect headlines, but to preserve the questions, patterns, contradictions and connections behind them.</p>
+      <p><strong>RedBloodJournal.com is the permanent reader-navigation layer of the project.</strong> It organizes the Journal's reports by report number, title, category and topic so readers can return to older work, compare themes over time and locate the report they came for.</p>
+
+      <div class="about-grid">
+        <div class="about-card"><h3>Independent by design</h3><p>The Journal is organized around independent inquiry rather than a single political party, institution or conventional left-right lane.</p></div>
+        <div class="about-card"><h3>A searchable record</h3><p>Reports are numbered and archived so the publication can function as a growing reference library rather than a disappearing social-media feed.</p></div>
+        <div class="about-card"><h3>Cross-topic analysis</h3><p>Politics, economics, intelligence, technology, medicine, history and human behavior often overlap. The archive is designed to make those connections easier to follow.</p></div>
+        <div class="about-card"><h3>Perspective with room for questions</h3><p>The Journal examines claims, institutions and narratives while leaving room for uncertainty, competing explanations and continued investigation.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container about-copy">
+      <div class="section-head">
+        <div><div class="eyebrow">What we cover</div><h2>One archive, many subjects</h2></div>
+      </div>
+      <p>The Journal's reader library currently organizes reports into nine main areas:</p>
+      <div class="about-list">
+        <a class="about-topic" href="/politics/">🌍 Politics &amp; Geopolitics</a>
+        <a class="about-topic" href="/power-intelligence-media/">🕵️ Power, Intelligence &amp; Media</a>
+        <a class="about-topic" href="/money-economics-work/">💰 Money, Economics &amp; Work</a>
+        <a class="about-topic" href="/technology-ai-privacy/">💻 Technology, AI &amp; Privacy</a>
+        <a class="about-topic" href="/health-medicine-science/">🧬 Health, Medicine &amp; Science</a>
+        <a class="about-topic" href="/spirituality-consciousness/">🌊 Spirituality &amp; Consciousness</a>
+        <a class="about-topic" href="/society-psychology-life/">🧠 Society, Psychology &amp; Life</a>
+        <a class="about-topic" href="/history-culture-religion/">📜 History, Culture &amp; Religion</a>
+        <a class="about-topic" href="/investigations-special-reports/">🩸 Investigations &amp; Special Reports</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container about-copy">
+      <div class="section-head">
+        <div><div class="eyebrow">Why it exists</div><h2>Preserve the trail, not just the moment</h2></div>
+      </div>
+      <p>News cycles move quickly. Search feeds change. Social posts disappear beneath newer posts. Red Blood Journal treats each report as part of a longer record so an argument, prediction, contradiction or historical connection can still be found months or years later.</p>
+      <p>The archive is therefore both a publication and a map: a place to follow current reports, revisit older investigations and compare how subjects develop over time.</p>
+
+      <div class="about-cta">
+        <div class="smallcaps">Explore Red Blood Journal</div>
+        <h2 style="margin:6px 0 0;">Find the report you came for.</h2>
+        <p>Search the complete reader archive or enter through one of the Journal's main subject areas.</p>
+        <div class="about-links">
+          <a class="chip" href="/#library">Search all reports →</a>
+          <a class="chip" href="/#latest">Latest reports →</a>
+          <a class="chip" href="/#categories">Browse categories →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="container footer-grid">
+    <div>
+      <div class="brand"><span class="drop">♦</span> RED BLOOD JOURNAL</div>
+      <div class="notice">Independent journalism, investigations, analysis and a permanent searchable reader archive.</div>
+    </div>
+    <div><div class="smallcaps">Permanent home</div><strong><a href="/">RedBloodJournal.com</a></strong></div>
+    <div><div class="smallcaps">About</div><a href="/about/">About Red Blood Journal</a></div>
+  </div>
+</footer>
+</body>
+</html>
