@@ -2,14 +2,19 @@
 
 import json
 import re
+import time
+import urllib.error
 import urllib.request
 import xml.etree.ElementTree as ET
+
+from email.utils import parsedate_to_datetime
 
 from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import urlparse
 
 SITEMAP_URL = "https://redblood.win/sitemap.xml"
+FEED_URL = "https://redblood.win/feed"
 ARCHIVE_API_URL = "https://redblood.win/api/v1/archive"
 OUTPUT = Path("reports.json")
 
@@ -19,11 +24,15 @@ OUTPUT = Path("reports.json")
 ARCHIVE_PAGE_SIZE = 12
 ARCHIVE_MAX_POSTS = 72
 
-# Always recheck this many newest reports every hourly run.
-LATEST_TO_ENRICH = 16
+# We deliberately keep individual article/API requests low because Substack
+# rate-limits bursts with HTTP 429. RSS/API data is used first; only a few
+# posts are enriched by direct article requests per hourly run.
+LATEST_TO_ENRICH = 12
+MAX_METADATA_FETCHES = 4
 
-# Gradually import tags/categories for older reports.
-BACKFILL_BATCH = 10
+# Gradually import tags/categories for older reports without hammering Substack.
+BACKFILL_BATCH = 2
+REQUEST_PAUSE_SECONDS = 1.25
 
 
 CATEGORY_RULES = {
@@ -171,17 +180,41 @@ CATEGORY_RULES = {
 }
 
 
-def fetch(url):
+def fetch(url, retries=2):
+    """
+    Fetch a public Red Blood Journal/Substack resource.
+
+    A small 429 retry protects hourly GitHub runs from transient rate limits,
+    while the rest of the script keeps the total number of direct requests low.
+    """
     req = urllib.request.Request(
         url,
         headers={
-            "User-Agent": "RedBloodJournalArchiveBot/2.0",
-            "Accept": "application/json,text/html,*/*",
+            "User-Agent": "RedBloodJournalArchiveBot/3.0",
+            "Accept": "application/rss+xml,application/xml,application/json,text/html,*/*",
         },
     )
 
-    with urllib.request.urlopen(req, timeout=30) as response:
-        return response.read()
+    for attempt in range(retries + 1):
+        try:
+            with urllib.request.urlopen(req, timeout=30) as response:
+                return response.read()
+
+        except urllib.error.HTTPError as error:
+            if error.code != 429 or attempt >= retries:
+                raise
+
+            retry_after = error.headers.get("Retry-After", "")
+            try:
+                delay = max(float(retry_after), 2.0)
+            except Exception:
+                delay = 2.0 * (attempt + 1)
+
+            print(
+                f"HTTP 429 for {url}; "
+                f"waiting {delay:.1f}s before retry"
+            )
+            time.sleep(delay)
 
 
 def clean_tag(value):
@@ -580,6 +613,181 @@ def classify_report(title, tags):
         )
 
     return winners[0]
+
+
+def rss_text(node, tag):
+    child = node.find(tag)
+    if child is None or child.text is None:
+        return ""
+    return child.text.strip()
+
+
+def rss_date_to_iso(value):
+    value = str(value or "").strip()
+    if not value:
+        return ""
+
+    try:
+        dt = parsedate_to_datetime(value)
+        return dt.isoformat()
+    except Exception:
+        return value
+
+
+def first_image_from_html(value):
+    value = str(value or "")
+    match = re.search(
+        r'<img[^>]+src=["\\\']([^"\\\']+)["\\\']',
+        value,
+        flags=re.I,
+    )
+    return match.group(1).strip() if match else ""
+
+
+def get_rss_posts():
+    """
+    Read the publication RSS feed.
+
+    RSS is the primary freshness source because it normally reflects newly
+    published posts before the large sitemap catches up.
+    """
+    try:
+        root = ET.fromstring(fetch(FEED_URL))
+    except Exception as error:
+        print(f"RSS feed unavailable: {error}")
+        return []
+
+    channel = root.find("channel")
+    if channel is None:
+        print("RSS feed did not contain a channel")
+        return []
+
+    posts = []
+
+    media_ns = "{http://search.yahoo.com/mrss/}"
+    content_ns = "{http://purl.org/rss/1.0/modules/content/}"
+
+    for item in channel.findall("item"):
+        url = normalize_url(rss_text(item, "link"))
+        if not url or "/p/" not in url:
+            continue
+
+        title = rss_text(item, "title")
+        subtitle = rss_text(item, "description")
+        published = rss_date_to_iso(
+            rss_text(item, "pubDate")
+        )
+
+        image = ""
+
+        enclosure = item.find("enclosure")
+        if enclosure is not None:
+            enclosure_type = str(
+                enclosure.attrib.get("type", "")
+            ).lower()
+            if enclosure_type.startswith("image/"):
+                image = str(
+                    enclosure.attrib.get("url", "")
+                ).strip()
+
+        if not image:
+            media = item.find(f"{media_ns}content")
+            if media is not None:
+                image = str(
+                    media.attrib.get("url", "")
+                ).strip()
+
+        if not image:
+            thumb = item.find(f"{media_ns}thumbnail")
+            if thumb is not None:
+                image = str(
+                    thumb.attrib.get("url", "")
+                ).strip()
+
+        if not image:
+            encoded = item.find(f"{content_ns}encoded")
+            if encoded is not None and encoded.text:
+                image = first_image_from_html(
+                    encoded.text
+                )
+
+        if not image:
+            image = first_image_from_html(
+                subtitle
+            )
+
+        posts.append(
+            {
+                "url": url,
+                "title": title,
+                "subtitle": re.sub(
+                    r"<[^>]+>",
+                    " ",
+                    subtitle,
+                ).strip(),
+                "image": image,
+                "lastmod": published,
+            }
+        )
+
+    print(
+        f"RSS feed discovered {len(posts)} "
+        "recent publication records"
+    )
+
+    return posts
+
+
+def build_report_from_rss(post, previous=None):
+    previous = previous or {}
+
+    url = normalize_url(
+        post.get("url", "")
+    )
+
+    slug = (
+        urlparse(url)
+        .path
+        .split("/p/", 1)[1]
+    )
+
+    rid = extract_id(slug)
+
+    title = (
+        post.get("title")
+        or previous.get("title")
+        or title_from_slug(slug, rid)
+    )
+
+    tags = previous.get("tags", [])
+
+    return {
+        "id": rid,
+        "title": title,
+        "subtitle": (
+            post.get("subtitle")
+            or previous.get("subtitle", "")
+        ),
+        "url": url,
+        "image": (
+            post.get("image")
+            or previous.get("image", "")
+        ),
+        "category": classify_report(
+            title,
+            tags,
+        ),
+        "tags": tags,
+        "page": previous.get("page", 0),
+        "lastmod": (
+            post.get("lastmod")
+            or previous.get("lastmod", "")
+        ),
+        "_previous_lastmod": previous.get(
+            "_previous_lastmod",
+            previous.get("lastmod", ""),
+        ),
+    }
 
 
 def normalize_url(value):
@@ -1022,6 +1230,45 @@ def main():
         f"{api_added} reports not present in the sitemap"
     )
 
+    # RSS is merged LAST so the newest publication data wins over a stale
+    # sitemap/archive record for the same URL.
+    rss_posts = get_rss_posts()
+
+    rss_added = 0
+    rss_updated = 0
+
+    for post in rss_posts:
+        url = normalize_url(
+            post.get("url", "")
+        )
+
+        if not url or "/p/" not in url:
+            continue
+
+        previous = (
+            discovered.get(url)
+            or existing_reports.get(url)
+            or {}
+        )
+
+        was_known = url in discovered
+
+        discovered[url] = build_report_from_rss(
+            post,
+            previous=previous,
+        )
+
+        if was_known:
+            rss_updated += 1
+        else:
+            rss_added += 1
+
+    print(
+        "RSS feed merged "
+        f"{rss_updated} known reports and added "
+        f"{rss_added} reports not present in other sources"
+    )
+
     out = list(
         discovered.values()
     )
@@ -1036,44 +1283,53 @@ def main():
         reverse=True
     )
 
-    refresh_urls = set()
+    refresh_urls = []
+    refresh_seen = set()
 
-    # Always refresh newest reports.
+    def queue_refresh(report):
+        url = report.get("url", "")
+        if (
+            url
+            and url not in refresh_seen
+            and len(refresh_urls) < MAX_METADATA_FETCHES
+        ):
+            refresh_seen.add(url)
+            refresh_urls.append(url)
+
+    # Highest priority: newest posts that still lack a cover or usable title.
     for report in out[:LATEST_TO_ENRICH]:
-        refresh_urls.add(
-            report["url"]
-        )
+        if (
+            not report.get("image")
+            or not report.get("title")
+        ):
+            queue_refresh(report)
 
-    # Gradually backfill older reports missing tags or cover images.
+    # Next: genuinely new/changed newest posts. RSS/API normally already gives
+    # us enough data to display these, so only use remaining request budget.
+    for report in out[:LATEST_TO_ENRICH]:
+        if (
+            report.get("lastmod", "")
+            != report.get("_previous_lastmod", "")
+        ):
+            queue_refresh(report)
+
+    # Finally: tiny background backfill for older records.
     backfill_count = 0
-
     for report in out[LATEST_TO_ENRICH:]:
-        if backfill_count >= BACKFILL_BATCH:
+        if (
+            backfill_count >= BACKFILL_BATCH
+            or len(refresh_urls) >= MAX_METADATA_FETCHES
+        ):
             break
 
-        if not report.get("tags") or not report.get("image"):
-            refresh_urls.add(
-                report["url"]
-            )
+        if (
+            not report.get("image")
+            or not report.get("tags")
+        ):
+            queue_refresh(report)
             backfill_count += 1
 
-    # Also refresh any article whose
-    # sitemap modification date changed.
-    for report in out:
-        if (
-            report.get(
-                "lastmod",
-                ""
-            )
-            !=
-            report.get(
-                "_previous_lastmod",
-                ""
-            )
-        ):
-            refresh_urls.add(
-                report["url"]
-            )
+    refresh_urls = set(refresh_urls)
 
     for report in out:
 
@@ -1104,9 +1360,6 @@ def main():
                 meta["title"]
             )
 
-        # Important:
-        # If API succeeds and finds current tags,
-        # replace the old list.
         if meta["tags"]:
             report["tags"] = (
                 meta["tags"]
@@ -1117,6 +1370,10 @@ def main():
                 report["title"],
                 report["tags"]
             )
+        )
+
+        time.sleep(
+            REQUEST_PAUSE_SECONDS
         )
 
     # Remove internal helper field.
@@ -1166,6 +1423,15 @@ def main():
         f"Wrote {len(out)} "
         f"publications to {OUTPUT}"
     )
+
+    if out:
+        newest = out[0]
+        print(
+            "Newest merged report: "
+            f"#{newest.get('id', '')} "
+            f"{newest.get('title', '')} "
+            f"({newest.get('lastmod', '')})"
+        )
 
     print(
         "Found cover images for "
