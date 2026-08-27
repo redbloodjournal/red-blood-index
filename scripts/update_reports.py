@@ -11,10 +11,12 @@ from email.utils import parsedate_to_datetime
 
 from html.parser import HTMLParser
 from pathlib import Path
-from urllib.parse import urlparse
+from urllib.parse import urljoin, urlparse
 
 SITEMAP_URL = "https://redblood.win/sitemap.xml"
 FEED_URL = "https://redblood.win/feed"
+ARCHIVE_PAGE_URL = "https://redblood.win/archive"
+PUBLICATION_HOME_URL = "https://redblood.win/"
 ARCHIVE_API_URL = "https://redblood.win/api/v1/archive"
 OUTPUT = Path("reports.json")
 
@@ -613,6 +615,160 @@ def classify_report(title, tags):
         )
 
     return winners[0]
+
+
+
+class ArchiveLinkParser(HTMLParser):
+    def __init__(self, base_url):
+        super().__init__()
+        self.base_url = base_url
+        self.current_href = ""
+        self.current_text = []
+        self.posts = []
+        self.seen = set()
+
+    def handle_starttag(self, tag, attrs):
+        if tag.lower() != "a":
+            return
+
+        href = ""
+        for key, value in attrs:
+            if key.lower() == "href" and value:
+                href = value
+                break
+
+        absolute = normalize_url(urljoin(self.base_url, href))
+
+        if "/p/" in absolute:
+            self.current_href = absolute
+            self.current_text = []
+
+    def handle_data(self, data):
+        if self.current_href:
+            value = str(data or "").strip()
+            if value:
+                self.current_text.append(value)
+
+    def handle_endtag(self, tag):
+        if tag.lower() != "a" or not self.current_href:
+            return
+
+        url = self.current_href
+        title = re.sub(
+            r"\s+",
+            " ",
+            " ".join(self.current_text),
+        ).strip()
+
+        if url not in self.seen:
+            self.seen.add(url)
+            self.posts.append({"url": url, "title": title})
+
+        self.current_href = ""
+        self.current_text = []
+
+
+def get_archive_page_posts():
+    combined = []
+    seen = set()
+
+    for page_url in (ARCHIVE_PAGE_URL, PUBLICATION_HOME_URL):
+        try:
+            page = fetch(page_url, retries=1).decode(
+                "utf-8",
+                errors="ignore",
+            )
+
+            parser = ArchiveLinkParser(page_url)
+            parser.feed(page)
+
+            page_added = 0
+
+            for post in parser.posts:
+                url = normalize_url(post.get("url", ""))
+
+                if (
+                    not url
+                    or "/p/" not in url
+                    or url in seen
+                ):
+                    continue
+
+                seen.add(url)
+                combined.append(post)
+                page_added += 1
+
+            print(
+                f"Archive HTML discovered {page_added} "
+                f"publication links from {page_url}"
+            )
+
+        except Exception as error:
+            print(
+                f"Archive HTML unavailable at "
+                f"{page_url}: {error}"
+            )
+
+    print(
+        f"Archive HTML discovered {len(combined)} "
+        "unique publication links total"
+    )
+
+    return combined
+
+
+def build_report_from_archive_html(post, previous=None):
+    previous = previous or {}
+
+    url = normalize_url(post.get("url", ""))
+
+    slug = (
+        urlparse(url)
+        .path
+        .split("/p/", 1)[1]
+        .strip("/")
+    )
+
+    rid = extract_id(slug)
+
+    anchor_title = re.sub(
+        r"\s+",
+        " ",
+        str(post.get("title", "") or ""),
+    ).strip()
+
+    if anchor_title.lower() in {
+        "read",
+        "read more",
+        "continue reading",
+        "comments",
+        "share",
+    }:
+        anchor_title = ""
+
+    title = (
+        anchor_title
+        or previous.get("title")
+        or title_from_slug(slug, rid)
+    )
+
+    tags = previous.get("tags", [])
+
+    return {
+        "id": rid,
+        "title": title,
+        "subtitle": previous.get("subtitle", ""),
+        "url": url,
+        "image": previous.get("image", ""),
+        "category": classify_report(title, tags),
+        "tags": tags,
+        "page": previous.get("page", 0),
+        "lastmod": previous.get("lastmod", ""),
+        "_previous_lastmod": previous.get(
+            "_previous_lastmod",
+            previous.get("lastmod", ""),
+        ),
+    }
 
 
 def rss_text(node, tag):
@@ -1269,6 +1425,49 @@ def main():
         f"{rss_added} reports not present in other sources"
     )
 
+    archive_html_posts = get_archive_page_posts()
+
+    html_added = 0
+    html_updated = 0
+    html_added_urls = []
+
+    for post in archive_html_posts:
+        url = normalize_url(post.get("url", ""))
+
+        if not url or "/p/" not in url:
+            continue
+
+        previous = (
+            discovered.get(url)
+            or existing_reports.get(url)
+            or {}
+        )
+
+        was_known = url in discovered
+
+        discovered[url] = build_report_from_archive_html(
+            post,
+            previous=previous,
+        )
+
+        if was_known:
+            html_updated += 1
+        else:
+            html_added += 1
+            html_added_urls.append(url)
+
+    print(
+        "Archive HTML merged "
+        f"{html_updated} known reports and added "
+        f"{html_added} reports missing from all structured sources"
+    )
+
+    if html_added_urls:
+        print(
+            "Archive HTML rescue URLs: "
+            + ", ".join(html_added_urls[:20])
+        )
+
     out = list(
         discovered.values()
     )
@@ -1296,7 +1495,14 @@ def main():
             refresh_seen.add(url)
             refresh_urls.append(url)
 
-    # Highest priority: newest posts that still lack a cover or usable title.
+    # Highest priority: posts rescued from archive/home HTML.
+    rescued = set(html_added_urls)
+
+    for report in out:
+        if report.get("url") in rescued:
+            queue_refresh(report)
+
+    # Next priority: newest posts that still lack a cover or usable title.
     for report in out[:LATEST_TO_ENRICH]:
         if (
             not report.get("image")
@@ -1432,6 +1638,26 @@ def main():
             f"{newest.get('title', '')} "
             f"({newest.get('lastmod', '')})"
         )
+
+        dated_reports = [
+            report
+            for report in out
+            if re.fullmatch(
+                r"20\d{8}",
+                str(report.get("id", "")),
+            )
+        ]
+
+        if dated_reports:
+            newest_numbered = max(
+                dated_reports,
+                key=lambda report: int(report["id"]),
+            )
+            print(
+                "Highest YYYYMMDDNN report number discovered: "
+                f"#{newest_numbered.get('id', '')} "
+                f"{newest_numbered.get('title', '')}"
+            )
 
     print(
         "Found cover images for "
