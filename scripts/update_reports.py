@@ -10,10 +10,17 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 SITEMAP_URL = "https://redblood.win/sitemap.xml"
+ARCHIVE_API_URL = "https://redblood.win/api/v1/archive"
 OUTPUT = Path("reports.json")
 
+# The sitemap is still useful for the full historical archive, but Substack can
+# delay updating it. Pull the newest posts directly from Substack's archive API
+# as a second discovery source so new reports are not blocked by sitemap lag.
+ARCHIVE_PAGE_SIZE = 12
+ARCHIVE_MAX_POSTS = 72
+
 # Always recheck this many newest reports every hourly run.
-LATEST_TO_ENRICH = 10
+LATEST_TO_ENRICH = 16
 
 # Gradually import tags/categories for older reports.
 BACKFILL_BATCH = 10
@@ -575,6 +582,267 @@ def classify_report(title, tags):
     return winners[0]
 
 
+def normalize_url(value):
+    return str(value or "").strip().rstrip("/")
+
+
+def first_nonempty(mapping, keys, default=""):
+    if not isinstance(mapping, dict):
+        return default
+
+    for key in keys:
+        value = mapping.get(key)
+        if value not in (None, "", []):
+            return value
+
+    return default
+
+
+def archive_post_url(post):
+    """
+    Return a canonical /p/ URL from a Substack archive API object.
+    The endpoint's exact field names have changed over time, so accept
+    several common variants and fall back to the slug.
+    """
+    candidate = first_nonempty(
+        post,
+        (
+            "canonical_url",
+            "canonicalUrl",
+            "url",
+            "post_url",
+            "postUrl",
+        ),
+        "",
+    )
+
+    if isinstance(candidate, str) and "/p/" in candidate:
+        return normalize_url(candidate)
+
+    slug = first_nonempty(
+        post,
+        (
+            "slug",
+            "post_slug",
+            "postSlug",
+        ),
+        "",
+    )
+
+    if isinstance(slug, str) and slug.strip():
+        return f"https://redblood.win/p/{slug.strip().strip('/')}"
+
+    return ""
+
+
+def archive_post_lastmod(post):
+    value = first_nonempty(
+        post,
+        (
+            "post_date",
+            "postDate",
+            "published_at",
+            "publishedAt",
+            "publication_date",
+            "publicationDate",
+            "date",
+        ),
+        "",
+    )
+
+    return str(value or "").strip()
+
+
+def archive_post_title(post):
+    value = first_nonempty(
+        post,
+        (
+            "title",
+            "headline",
+            "name",
+        ),
+        "",
+    )
+    return str(value or "").strip()
+
+
+def archive_post_subtitle(post):
+    value = first_nonempty(
+        post,
+        (
+            "subtitle",
+            "description",
+            "social_title",
+            "socialTitle",
+            "search_engine_description",
+            "searchEngineDescription",
+        ),
+        "",
+    )
+    return str(value or "").strip()
+
+
+def archive_post_image(post):
+    value = first_nonempty(
+        post,
+        (
+            "cover_image",
+            "coverImage",
+            "image",
+            "social_image",
+            "socialImage",
+        ),
+        "",
+    )
+    return str(value or "").strip()
+
+
+def get_archive_api_posts():
+    """
+    Fetch the newest posts from Substack's public archive endpoint.
+
+    This is intentionally a *supplement* to the sitemap, not a replacement.
+    If the API is unavailable, the updater continues with the sitemap.
+    """
+    posts = []
+    offset = 0
+
+    while len(posts) < ARCHIVE_MAX_POSTS:
+        limit = min(
+            ARCHIVE_PAGE_SIZE,
+            ARCHIVE_MAX_POSTS - len(posts),
+        )
+
+        api_url = (
+            f"{ARCHIVE_API_URL}"
+            f"?sort=new&search=&offset={offset}&limit={limit}"
+        )
+
+        try:
+            raw = fetch(api_url)
+            data = json.loads(
+                raw.decode(
+                    "utf-8",
+                    errors="ignore",
+                )
+            )
+        except Exception as error:
+            print(
+                "Archive API unavailable at "
+                f"offset {offset}: {error}"
+            )
+            break
+
+        # Some versions return a bare list; tolerate a wrapped response too.
+        if isinstance(data, dict):
+            batch = (
+                data.get("posts")
+                or data.get("items")
+                or data.get("results")
+                or []
+            )
+        else:
+            batch = data
+
+        if not isinstance(batch, list) or not batch:
+            break
+
+        valid = [
+            item
+            for item in batch
+            if isinstance(item, dict)
+        ]
+
+        posts.extend(valid)
+        offset += len(batch)
+
+        if len(batch) < limit:
+            break
+
+    print(
+        f"Archive API discovered {len(posts)} "
+        "recent publication records"
+    )
+
+    return posts
+
+
+def build_report_from_url(
+    url,
+    lastmod,
+    previous=None,
+    api_post=None,
+):
+    previous = previous or {}
+    api_post = api_post or {}
+
+    normalized = normalize_url(url)
+
+    slug = (
+        urlparse(normalized)
+        .path
+        .split("/p/", 1)[1]
+    )
+
+    rid = extract_id(slug)
+
+    api_title = archive_post_title(api_post)
+    api_subtitle = archive_post_subtitle(api_post)
+    api_image = archive_post_image(api_post)
+    api_tags = extract_tags_from_api(api_post)
+
+    title = (
+        api_title
+        or previous.get("title")
+        or title_from_slug(slug, rid)
+    )
+
+    tags = (
+        api_tags
+        or previous.get("tags", [])
+    )
+
+    category = previous.get(
+        "category",
+        "Unclassified",
+    )
+
+    # New API-only reports should get a category immediately when possible.
+    if api_title or api_tags:
+        category = classify_report(
+            title,
+            tags,
+        )
+
+    return {
+        "id": rid,
+        "title": title,
+        "subtitle": (
+            api_subtitle
+            or previous.get("subtitle", "")
+        ),
+        "url": normalized,
+        "image": (
+            api_image
+            or previous.get("image", "")
+        ),
+        "category": category,
+        "tags": tags,
+        "page": previous.get("page", 0),
+        "lastmod": (
+            str(lastmod or "").strip()
+            or previous.get("lastmod", "")
+        ),
+        "_previous_lastmod": previous.get(
+            "_previous_lastmod",
+            previous.get(
+                "lastmod",
+                "",
+            ),
+        ),
+    }
+
+
 def load_existing_reports():
     if not OUTPUT.exists():
         return {}
@@ -587,9 +855,11 @@ def load_existing_reports():
         )
 
         return {
-            report.get(
-                "url",
-                ""
+            normalize_url(
+                report.get(
+                    "url",
+                    ""
+                )
             ): report
 
             for report in existing
@@ -613,139 +883,148 @@ def main():
         load_existing_reports()
     )
 
-    root = ET.fromstring(
-        fetch(SITEMAP_URL)
-    )
+    # Build a merged discovery map:
+    #   1. existing reports (safety baseline)
+    #   2. sitemap (full archive)
+    #   3. Substack archive API (newest reports, even if sitemap is late)
+    discovered = {}
 
-    ns = {
-        "sm":
-        "http://www.sitemaps.org/"
-        "schemas/sitemap/0.9"
-    }
-
-    out = []
-    seen = set()
-
-    for node in root.findall(
-        "sm:url",
-        ns
-    ):
-
-        loc = node.find(
-            "sm:loc",
-            ns
-        )
-
-        lm = node.find(
-            "sm:lastmod",
-            ns
-        )
-
-        if (
-            loc is None
-            or not loc.text
-        ):
+    for existing_url, previous in existing_reports.items():
+        if "/p/" not in existing_url:
             continue
 
-        url = (
-            loc.text.strip()
+        discovered[existing_url] = build_report_from_url(
+            existing_url,
+            previous.get("lastmod", ""),
+            previous=previous,
         )
 
-        if (
-            "/p/" not in url
-            or url in seen
-        ):
-            continue
-
-        seen.add(url)
-
-        slug = (
-            urlparse(url)
-            .path
-            .split("/p/", 1)[1]
+    # Full historical source.
+    try:
+        root = ET.fromstring(
+            fetch(SITEMAP_URL)
         )
 
-        rid = extract_id(
-            slug
-        )
-
-        sitemap_lastmod = (
-            lm.text.strip()
-
-            if (
-                lm is not None
-                and lm.text
-            )
-
-            else ""
-        )
-
-        previous = (
-            existing_reports.get(
-                url,
-                {}
-            )
-        )
-
-        report = {
-
-            "id": rid,
-
-            "title":
-            previous.get(
-                "title",
-                title_from_slug(
-                    slug,
-                    rid
-                )
-            ),
-
-            "subtitle":
-            previous.get(
-                "subtitle",
-                ""
-            ),
-
-            "url":
-            url,
-
-            "image":
-            previous.get(
-                "image",
-                ""
-            ),
-
-            "category":
-            previous.get(
-                "category",
-                "Unclassified"
-            ),
-
-            "tags":
-            previous.get(
-                "tags",
-                []
-            ),
-
-            "page":
-            previous.get(
-                "page",
-                0
-            ),
-
-            "lastmod":
-            sitemap_lastmod,
-
-            "_previous_lastmod":
-            previous.get(
-                "lastmod",
-                ""
-            ),
+        ns = {
+            "sm":
+            "http://www.sitemaps.org/"
+            "schemas/sitemap/0.9"
         }
 
-        out.append(
-            report
+        sitemap_count = 0
+
+        for node in root.findall(
+            "sm:url",
+            ns
+        ):
+            loc = node.find(
+                "sm:loc",
+                ns
+            )
+
+            lm = node.find(
+                "sm:lastmod",
+                ns
+            )
+
+            if (
+                loc is None
+                or not loc.text
+            ):
+                continue
+
+            url = normalize_url(
+                loc.text
+            )
+
+            if "/p/" not in url:
+                continue
+
+            sitemap_lastmod = (
+                lm.text.strip()
+
+                if (
+                    lm is not None
+                    and lm.text
+                )
+
+                else ""
+            )
+
+            previous = existing_reports.get(
+                url,
+                {},
+            )
+
+            discovered[url] = build_report_from_url(
+                url,
+                sitemap_lastmod,
+                previous=previous,
+            )
+
+            sitemap_count += 1
+
+        print(
+            f"Sitemap discovered {sitemap_count} "
+            "publication records"
         )
+
+    except Exception as error:
+        print(
+            "WARNING: Could not read sitemap; "
+            "preserving existing reports and "
+            f"continuing with archive API: {error}"
+        )
+
+    # Freshness source. This is what protects the site from sitemap lag.
+    api_posts = get_archive_api_posts()
+
+    api_added = 0
+    api_updated = 0
+
+    for post in api_posts:
+        url = archive_post_url(
+            post
+        )
+
+        if not url or "/p/" not in url:
+            continue
+
+        url = normalize_url(url)
+
+        previous = (
+            discovered.get(url)
+            or existing_reports.get(url)
+            or {}
+        )
+
+        was_known = url in discovered
+
+        api_lastmod = archive_post_lastmod(
+            post
+        )
+
+        discovered[url] = build_report_from_url(
+            url,
+            api_lastmod,
+            previous=previous,
+            api_post=post,
+        )
+
+        if was_known:
+            api_updated += 1
+        else:
+            api_added += 1
+
+    print(
+        "Archive API merged "
+        f"{api_updated} known reports and added "
+        f"{api_added} reports not present in the sitemap"
+    )
+
+    out = list(
+        discovered.values()
+    )
 
     # Newest reports first.
     out.sort(
