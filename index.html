@@ -1124,23 +1124,95 @@ document.getElementById("clearBtn").onclick=()=>{state={q:"",cat:"All",visible:4
 const params=new URLSearchParams(location.search);
 if(params.get("q")) state.q=params.get("q");
 
+function reportFreshnessKey(reports){
+  if(!Array.isArray(reports) || !reports.length) return "";
+
+  let newestDate = "";
+  let highestDatedId = 0;
+
+  for(const report of reports){
+    const lastmod = String(report?.lastmod || "");
+    if(lastmod > newestDate) newestDate = lastmod;
+
+    const id = String(report?.id || "");
+    if(/^20\d{8}$/.test(id)){
+      highestDatedId = Math.max(highestDatedId, Number(id));
+    }
+  }
+
+  return `${newestDate}|${String(highestDatedId).padStart(10,"0")}|${String(reports.length).padStart(6,"0")}`;
+}
+
+async function fetchJsonFresh(url){
+  const separator = url.includes("?") ? "&" : "?";
+  const response = await fetch(
+    `${url}${separator}ts=${Date.now()}`,
+    {
+      cache:"no-store",
+      headers:{
+        "Cache-Control":"no-cache",
+        "Pragma":"no-cache"
+      }
+    }
+  );
+
+  if(!response.ok){
+    throw new Error(`Could not load ${url}: HTTP ${response.status}`);
+  }
+
+  return response.json();
+}
+
 async function loadReports(){
   try{
-    const [reportsResponse, metadataResponse] = await Promise.all([
-      fetch("/reports.json?ts=" + Date.now()),
-      fetch("/metadata.json?ts=" + Date.now())
+    const localReportsPromise = fetchJsonFresh("/reports.json")
+      .then(data => ({source:"site", data}))
+      .catch(error => {
+        console.warn("Site reports.json unavailable:", error);
+        return null;
+      });
+
+    const githubReportsPromise = fetchJsonFresh(
+      "https://raw.githubusercontent.com/redbloodjournal/red-blood-index/main/reports.json"
+    )
+      .then(data => ({source:"github-main", data}))
+      .catch(error => {
+        console.warn("GitHub reports.json fallback unavailable:", error);
+        return null;
+      });
+
+    const metadataPromise = fetchJsonFresh("/metadata.json")
+      .catch(error => {
+        console.warn("metadata.json unavailable:", error);
+        return {};
+      });
+
+    const [localCandidate, githubCandidate, metadata] = await Promise.all([
+      localReportsPromise,
+      githubReportsPromise,
+      metadataPromise
     ]);
 
-    if(!reportsResponse.ok){
-      throw new Error("Could not load reports.json");
+    const candidates = [localCandidate, githubCandidate]
+      .filter(candidate => candidate && Array.isArray(candidate.data));
+
+    if(!candidates.length){
+      throw new Error("Could not load reports.json from either source");
     }
 
-    const freshReports = await reportsResponse.json();
+    candidates.sort((a,b) =>
+      reportFreshnessKey(b.data).localeCompare(reportFreshnessKey(a.data))
+    );
 
-    let metadata = {};
-    if(metadataResponse.ok){
-      metadata = await metadataResponse.json();
-    }
+    const chosen = candidates[0];
+    const freshReports = chosen.data;
+
+    console.info(
+      "Red Blood Journal archive source:",
+      chosen.source,
+      "freshness:",
+      reportFreshnessKey(freshReports)
+    );
 
     REPORTS = freshReports.map(r => ({
       ...r,
