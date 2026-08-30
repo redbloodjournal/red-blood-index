@@ -426,6 +426,30 @@ h1{
 }
 
 
+
+/* MOST CLICKED */
+
+.most-clicked-note{
+  color:var(--muted);
+  font-size:13px;
+  margin-top:8px;
+}
+
+.story-clicks{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  width:max-content;
+  border:1px solid var(--gold);
+  color:var(--gold);
+  background:#111;
+  border-radius:999px;
+  padding:5px 9px;
+  font-size:12px;
+  font-weight:800;
+  letter-spacing:.02em;
+}
+
 /* CATEGORY CARDS */
 
 .category-grid{
@@ -888,6 +912,20 @@ opacity:.8"></div>
   </div>
 </section>
 
+<section class="section" id="most-read">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <div class="eyebrow">Reader interest</div>
+        <h2>Most Clicked Reports</h2>
+        <div id="mostClickedPeriod" class="most-clicked-note"></div>
+      </div>
+      <div class="section-kicker">Reports readers clicked most often from RedBloodJournal.com.</div>
+    </div>
+    <div id="mostClickedGrid" class="latest-grid"></div>
+  </div>
+</section>
+
 <section class="section" id="categories">
   <div class="container">
     <div class="section-head"><div><div class="eyebrow">Browse by subject</div><h2>Explore the Journal</h2></div><div class="section-kicker">One primary category per report, with cross-topic tags available through search.</div></div>
@@ -1001,6 +1039,65 @@ function storyHTML(r) {
 }
   function renderLatest(){
   document.getElementById("latestGrid").innerHTML = REPORTS.slice(0,6).map(storyHTML).join("");
+}
+
+let MOST_CLICKED = null;
+
+function normalizeArticleUrl(url){
+  try{
+    const u = new URL(String(url || ""));
+    return `${u.origin}${u.pathname}`.replace(/\/$/,"");
+  }catch(e){
+    return String(url || "").split("?")[0].replace(/\/$/,"");
+  }
+}
+
+function renderMostClicked(){
+  const grid = document.getElementById("mostClickedGrid");
+  const period = document.getElementById("mostClickedPeriod");
+  if(!grid) return;
+
+  if(!MOST_CLICKED?.reports?.length){
+    grid.innerHTML = `<div class="empty">Most-clicked data is not available yet.</div>`;
+    if(period) period.textContent = "";
+    return;
+  }
+
+  if(period){
+    period.textContent = `${MOST_CLICKED.period} • ${MOST_CLICKED.total_report_clicks} report clicks`;
+  }
+
+  const reportMap = new Map(
+    REPORTS.map(r => [normalizeArticleUrl(r.url), r])
+  );
+
+  const cards = MOST_CLICKED.reports
+    .slice(0,6)
+    .map(item => {
+      const key = normalizeArticleUrl(item.url);
+      const r = reportMap.get(key);
+
+      if(!r){
+        return null;
+      }
+
+      const img = r.image || COVERS[r.id];
+      return `<a class="story" href="${esc(r.url)}" target="_blank" rel="noopener">
+        <div class="story-img">${img?`<img loading="lazy" src="${esc(img)}" alt="${esc(r.title)} cover">`:`<div class="fallback">🩸</div>`}</div>
+        <div class="story-body">
+          <div class="story-meta">#${esc(r.id)} • ${esc(r.category)}</div>
+          <div class="story-clicks">🔥 ${Number(item.clicks)} click${Number(item.clicks)===1?"":"s"}</div>
+          <h3>${esc(cleanReportTitle(r) || r.title)}</h3>
+          ${r.subtitle?`<p>${esc(r.subtitle)}</p>`:""}
+          <div class="read">Read report ↗</div>
+        </div>
+      </a>`;
+    })
+    .filter(Boolean);
+
+  grid.innerHTML = cards.length
+    ? cards.join("")
+    : `<div class="empty">The click leaderboard is available, but these URLs did not match the current report index.</div>`;
 }
 
 
@@ -1220,10 +1317,17 @@ async function loadReports(){
         return {};
       });
 
-    const [localCandidate, githubCandidate, metadata] = await Promise.all([
+    const mostClickedPromise = fetchJsonFresh("/most-clicked.json")
+      .catch(error => {
+        console.warn("most-clicked.json unavailable:", error);
+        return null;
+      });
+
+    const [localCandidate, githubCandidate, metadata, mostClicked] = await Promise.all([
       localReportsPromise,
       githubReportsPromise,
-      metadataPromise
+      metadataPromise,
+      mostClickedPromise
     ]);
 
     const candidates = [localCandidate, githubCandidate]
@@ -1254,7 +1358,9 @@ async function loadReports(){
 
     document.getElementById("reportCount").textContent = REPORTS.length;
 
+    MOST_CLICKED = mostClicked;
     renderLatest();
+    renderMostClicked();
     render();
 
   }catch(error){
