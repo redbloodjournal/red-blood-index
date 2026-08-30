@@ -1,1 +1,264 @@
-
+{
+  "label": "Most Clicked Reports",
+  "period": "Aug 1–28, 2026",
+  "source": "Google Analytics 4 outbound click events",
+  "total_report_clicks": 93,
+  "reports": [
+    {
+      "url": "https://redblood.win/p/1607-death-is-not-destruction-only",
+      "clicks": 5
+    },
+    {
+      "url": "https://redblood.win/p/1357-the-language-of-hidden-symbols",
+      "clicks": 4
+    },
+    {
+      "url": "https://redblood.win/p/1364-the-university-never-becomes",
+      "clicks": 3
+    },
+    {
+      "url": "https://redblood.win/p/2026082508-you-could-see-the-year",
+      "clicks": 3
+    },
+    {
+      "url": "https://redblood.win/p/1302-the-blood-label-illusion-part",
+      "clicks": 2
+    },
+    {
+      "url": "https://redblood.win/p/1304-two-mirrors-one-ocean",
+      "clicks": 2
+    },
+    {
+      "url": "https://redblood.win/p/1338-the-rope-the-safety-net-and",
+      "clicks": 2
+    },
+    {
+      "url": "https://redblood.win/p/1343-the-ocean-of-love-and-positivity",
+      "clicks": 2
+    },
+    {
+      "url": "https://redblood.win/p/1396-the-ocean-of-love-why-it-takes",
+      "clicks": 2
+    },
+    {
+      "url": "https://redblood.win/p/1397-the-ocean-of-love-becoming-your",
+      "clicks": 2
+    },
+    {
+      "url": "https://redblood.win/p/1399-the-ocean-of-love-and-islam",
+      "clicks": 2
+    },
+    {
+      "url": "https://redblood.win/p/1539-the-energy-within",
+      "clicks": 2
+    },
+    {
+      "url": "https://redblood.win/p/1711-the-only-investment-that-can",
+      "clicks": 2
+    },
+    {
+      "url": "https://redblood.win/p/1746-the-greatest-lesson-is-not-loss",
+      "clicks": 2
+    },
+    {
+      "url": "https://redblood.win/p/1911-when-doing-the-right-thing-becomes",
+      "clicks": 2
+    },
+    {
+      "url": "https://redblood.win/p/2026081803-we-sheep-apologize-to",
+      "clicks": 2
+    },
+    {
+      "url": "https://redblood.win/p/2026081902-the-pipeline-war-is-the",
+      "clicks": 2
+    },
+    {
+      "url": "https://redblood.win/p/2026082007-after-syria-is-iraq-next",
+      "clicks": 2
+    },
+    {
+      "url": "https://redblood.win/p/2026082105-what-if-we-are-civilization",
+      "clicks": 2
+    },
+    {
+      "url": "https://redblood.win/p/2026082301-america-bent-for-50-years",
+      "clicks": 2
+    },
+    {
+      "url": "https://redblood.win/p/the-doctor-who-healed-with-faith-b4c",
+      "clicks": 2
+    },
+    {
+      "url": "https://redblood.win/p/update-to-report-1396-the-ocean-of",
+      "clicks": 2
+    },
+    {
+      "url": "https://open.substack.com/pub/redbloodmyblood/p/2026081413-the-domestic-kneecapping?utm_source=podca",
+      "clicks": 1
+    },
+    {
+      "url": "https://open.substack.com/pub/redbloodmyblood/p/2026081705-when-survival-self-interest?utm_source=po",
+      "clicks": 1
+    },
+    {
+      "url": "https://open.substack.com/pub/redbloodmyblood/p/2026081901-the-tahoe-beside-you-may?utm_source=podca",
+      "clicks": 1
+    },
+    {
+      "url": "https://open.substack.com/pub/redbloodmyblood/p/2026082204-when-the-sinus-infection?utm_source=podca",
+      "clicks": 1
+    },
+    {
+      "url": "https://open.substack.com/pub/redbloodmyblood/p/2026082303-economic-d-day-washington?utm_source=podc",
+      "clicks": 1
+    },
+    {
+      "url": "https://open.substack.com/pub/redbloodmyblood/p/2026082604-the-mountain-broke-before?utm_source=podc",
+      "clicks": 1
+    },
+    {
+      "url": "https://open.substack.com/pub/redbloodmyblood/p/2026082707-when-the-world-begins?utm_source=podcast-",
+      "clicks": 1
+    },
+    {
+      "url": "https://redblood.win/p/1080-the-purpose-protocol",
+      "clicks": 1
+    },
+    {
+      "url": "https://redblood.win/p/1216-the-other-side-of-the-egg",
+      "clicks": 1
+    },
+    {
+      "url": "https://redblood.win/p/1280-the-costume-shop-of-power",
+      "clicks": 1
+    },
+    {
+      "url": "https://redblood.win/p/1290-the-ocean-conversation",
+      "clicks": 1
+    },
+    {
+      "url": "https://redblood.win/p/1333-the-indoctrinated-brain-memory",
+      "clicks": 1
+    },
+    {
+      "url": "https://redblood.win/p/1344-the-yacht-in-the-narrow-channel",
+      "clicks": 1
+    },
+    {
+      "url": "https://redblood.win/p/1345-deja-vu-the-memory-of-a-forgotten",
+      "clicks": 1
+    },
+    {
+      "url": "https://redblood.win/p/1350-the-ocean-they-cannot-divide",
+      "clicks": 1
+    },
+    {
+      "url": "https://redblood.win/p/1365-the-missing-subject-in-the-university",
+      "clicks": 1
+    },
+    {
+      "url": "https://redblood.win/p/1372-the-ocean-of-love-is-at-home",
+      "clicks": 1
+    },
+    {
+      "url": "https://redblood.win/p/1395-the-ocean-of-love-and-the-worlds",
+      "clicks": 1
+    },
+    {
+      "url": "https://redblood.win/p/1475-the-doctor-who-challenged-medical",
+      "clicks": 1
+    },
+    {
+      "url": "https://redblood.win/p/1609-wars-of-attrition-an-opinion",
+      "clicks": 1
+    },
+    {
+      "url": "https://redblood.win/p/1664-when-the-chessboard-speaks",
+      "clicks": 1
+    },
+    {
+      "url": "https://redblood.win/p/1831-when-healing-threatens-the-market",
+      "clicks": 1
+    },
+    {
+      "url": "https://redblood.win/p/1836-when-material-becomes-the-highest",
+      "clicks": 1
+    },
+    {
+      "url": "https://redblood.win/p/2026-when-protection-becomes-the",
+      "clicks": 1
+    },
+    {
+      "url": "https://redblood.win/p/2026081702-leave-something-good-in",
+      "clicks": 1
+    },
+    {
+      "url": "https://redblood.win/p/2026081903-when-the-driver-takes",
+      "clicks": 1
+    },
+    {
+      "url": "https://redblood.win/p/2026082012-sigheh-see-gheh-when-religion",
+      "clicks": 1
+    },
+    {
+      "url": "https://redblood.win/p/2026082017-what-happens-to-a-regime",
+      "clicks": 1
+    },
+    {
+      "url": "https://redblood.win/p/2026082404-the-machine-that-outlives",
+      "clicks": 1
+    },
+    {
+      "url": "https://redblood.win/p/2026082506-the-walls-are-moving-in",
+      "clicks": 1
+    },
+    {
+      "url": "https://redblood.win/p/2026082605-the-president-at-the-front",
+      "clicks": 1
+    },
+    {
+      "url": "https://redblood.win/p/2026082701-the-noose-in-front-of",
+      "clicks": 1
+    },
+    {
+      "url": "https://redblood.win/p/2026082702-when-death-becomes-a-line",
+      "clicks": 1
+    },
+    {
+      "url": "https://redblood.win/p/2026082704-you-knew-better-you-devil",
+      "clicks": 1
+    },
+    {
+      "url": "https://redblood.win/p/2026082705-the-university-never-becomes",
+      "clicks": 1
+    },
+    {
+      "url": "https://redblood.win/p/2026082802-the-cage-does-not-die",
+      "clicks": 1
+    },
+    {
+      "url": "https://redblood.win/p/2e0",
+      "clicks": 1
+    },
+    {
+      "url": "https://redblood.win/p/327",
+      "clicks": 1
+    },
+    {
+      "url": "https://redblood.win/p/t112225-godveil-the-manufactured",
+      "clicks": 1
+    },
+    {
+      "url": "https://redblood.win/p/the-doctor-who-healed-with-faith",
+      "clicks": 1
+    },
+    {
+      "url": "https://redblood.win/p/the-golden-egg-lie",
+      "clicks": 1
+    },
+    {
+      "url": "https://redblood.win/p/the-quiet-curriculum-of-life",
+      "clicks": 1
+    }
+  ]
+}
