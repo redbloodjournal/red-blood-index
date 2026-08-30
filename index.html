@@ -712,6 +712,58 @@ h1{
 }
 
 
+
+/* LANGUAGES */
+
+.language-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:14px;
+}
+
+.language-card{
+  border:1px solid var(--line);
+  background:linear-gradient(145deg,#1B1B1B,#101010);
+  border-radius:18px;
+  padding:22px;
+  min-height:160px;
+  transition:.2s;
+}
+
+.language-card:hover{
+  transform:translateY(-3px);
+  border-color:var(--gold);
+  box-shadow:var(--shadow);
+}
+
+.language-card .lang-native{
+  display:block;
+  font-size:26px;
+  font-weight:900;
+  margin-bottom:4px;
+}
+
+.language-card .lang-name{
+  display:block;
+  color:var(--gold);
+  font-weight:800;
+  margin-bottom:10px;
+}
+
+.language-card p{
+  margin:0;
+  color:var(--muted);
+  font-size:14px;
+}
+
+@media(max-width:900px){
+  .language-grid{grid-template-columns:1fr 1fr}
+}
+
+@media(max-width:620px){
+  .language-grid{grid-template-columns:1fr}
+}
+
 /* FOOTER */
 
 footer{
@@ -871,7 +923,7 @@ footer{
   <div class="container nav">
     <a href="/" class="brand"><span class="drop">♦</span> RED BLOOD JOURNAL</a>
     <nav class="navlinks">
-      <a href="#latest">Latest</a><a href="#categories">Categories</a><a href="#library">All Reports</a><a href="#start">Start Here</a><a href="/about/">About</a>
+      <a href="#latest">Latest</a><a href="#categories">Categories</a><a href="#library">All Reports</a><a href="#start">Start Here</a><a href="#languages">Languages</a><a href="/about/">About</a>
     </nav>
   </div>
 </header>
@@ -993,6 +1045,36 @@ opacity:.8"></div>
       <div class="start-card"><b>🌍 Follow the world</b><p>Begin with geopolitics, Iran, the United States, Israel, war and the systems that shape international power.</p><a class="chip" href="/politics/">Browse politics →</a></div>
       <div class="start-card"><b>🕵️ Follow the machinery</b><p>Explore intelligence, media, censorship, finance, technology and the institutions operating behind public narratives.</p><a class="chip" href="/power-intelligence-media/">Browse power →</a></div>
       <div class="start-card"><b>🌊 Follow the inward journey</b><p>Read the Journal's work on consciousness, the University of Life, wisdom, death, love and the inner self.</p><a class="chip" href="/spirituality-consciousness/">Browse spirituality →</a></div>
+    </div>
+  </div>
+</section>
+
+
+<section class="section" id="languages">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <div class="eyebrow">Red Blood Journal around the world</div>
+        <h2>Languages</h2>
+      </div>
+      <div class="section-kicker">Selected reports translated one at a time from the English source edition.</div>
+    </div>
+    <div class="language-grid">
+      <a class="language-card" href="/es/">
+        <span class="lang-native">Español</span>
+        <span class="lang-name">Spanish</span>
+        <p>Informes seleccionados de Red Blood Journal en español.</p>
+      </a>
+      <a class="language-card" href="/fa/" lang="fa" dir="rtl">
+        <span class="lang-native">فارسی</span>
+        <span class="lang-name">Persian</span>
+        <p>گزارش‌های برگزیدهٔ رد بلاد ژورنال به زبان فارسی.</p>
+      </a>
+      <a class="language-card" href="/zh-cn/" lang="zh-CN">
+        <span class="lang-native">简体中文</span>
+        <span class="lang-name">Chinese</span>
+        <p>Red Blood Journal 精选报道的简体中文译文。</p>
+      </a>
     </div>
   </div>
 </section>

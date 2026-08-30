@@ -1,24 +1,24 @@
-RED BLOOD JOURNAL V3 CATEGORY SITE
+RED BLOOD JOURNAL — LANGUAGE SECTION SETUP
 
-Upload the CONTENTS of this folder to the ROOT of the existing GitHub repository.
-Keep the directory structure exactly as-is.
+Upload these files/folders to the ROOT of the GitHub repository:
 
-Root files:
-- index.html
-- CNAME
-- robots.txt
-- sitemap.xml
-- assets/site.css
+index.html
+translations.json
+es/index.html
+fa/index.html
+zh-cn/index.html
 
-Category folders:
-- politics/
-- power-intelligence-media/
-- money-economics-work/
-- technology-ai-privacy/
-- health-medicine-science/
-- spirituality-consciousness/
-- society-psychology-life/
-- history-culture-religion/
-- investigations-special-reports/
+GitHub paths after upload:
+/
+├── index.html
+├── translations.json
+├── es/
+│   └── index.html
+├── fa/
+│   └── index.html
+└── zh-cn/
+    └── index.html
 
-Each category folder contains its own index.html.
+This first setup creates the language navigation and queues Report #1607.
+The full #1607 translation pages should be added after the English source text
+is available for translation.
