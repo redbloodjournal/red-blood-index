@@ -747,12 +747,45 @@ footer{
     grid-template-columns:1fr;
   }
 
+  .nav{
+    height:auto;
+    min-height:70px;
+    flex-wrap:wrap;
+    padding:12px 0 10px;
+    row-gap:10px;
+  }
+
+  .brand{
+    width:100%;
+  }
+
   .navlinks{
+    display:flex;
+    width:100%;
+    margin-left:0;
+    gap:18px;
+    overflow-x:auto;
+    white-space:nowrap;
+    padding:2px 0 4px;
+    scrollbar-width:none;
+    -webkit-overflow-scrolling:touch;
+  }
+
+  .navlinks::-webkit-scrollbar{
     display:none;
+  }
+
+  .navlinks a{
+    flex:0 0 auto;
   }
 }
 
 @media(max-width:620px){
+
+  .navlinks{
+    gap:16px;
+    font-size:13px;
+  }
 
   .container{
     width:min(100% - 24px,1220px);
