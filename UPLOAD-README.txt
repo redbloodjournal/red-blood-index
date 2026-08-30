@@ -1,24 +1,15 @@
-RED BLOOD JOURNAL — LANGUAGE SECTION SETUP
-
-Upload these files/folders to the ROOT of the GitHub repository:
+UPLOAD THESE CONTENTS TO THE ROOT OF THE GITHUB REPOSITORY
 
 index.html
 translations.json
-es/index.html
-fa/index.html
-zh-cn/index.html
+es/
+fa/
+zh-cn/
 
-GitHub paths after upload:
-/
-├── index.html
-├── translations.json
-├── es/
-│   └── index.html
-├── fa/
-│   └── index.html
-└── zh-cn/
-    └── index.html
+The new report pages are:
+  /es/1607/index.html
+  /fa/1607/index.html
+  /zh-cn/1607/index.html
 
-This first setup creates the language navigation and queues Report #1607.
-The full #1607 translation pages should be added after the English source text
-is available for translation.
+This package replaces the earlier language setup and marks #1607 as published
+in all three languages.

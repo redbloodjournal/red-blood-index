@@ -19,8 +19,12 @@
     "1607": {
       "title": "Death Is Not Destruction, Only Separation",
       "original": "https://redblood.win/p/1607-death-is-not-destruction-only",
-      "status": "queued",
-      "translations": {}
+      "status": "published",
+      "translations": {
+        "es": "/es/1607/",
+        "fa": "/fa/1607/",
+        "zh-cn": "/zh-cn/1607/"
+      }
     }
   }
 }
