@@ -937,7 +937,7 @@ footer{
   Find the report you came for.
 </p>
 <p>Red Blood Journal is an independent publication covering investigations, politics, geopolitics, intelligence, technology, health, history, society and consciousness. Search the archive by report number, title, category or topic; each report opens its published article.</p>    <div class="search-wrap">
-      <input id="heroSearch" class="search" type="search" autocomplete="off" placeholder="Search report number, title, Iran, Trump, Fauci, consciousness…">
+      <input id="heroSearch" class="search" type="search" autocomplete="off" placeholder="Search a report, topic, or question — e.g. purpose of life…">
       <span class="search-icon">⌕</span>
     </div>
     <div class="quick-tags">
@@ -1083,7 +1083,7 @@ opacity:.8"></div>
   <div class="container">
     <div class="section-head"><div><div class="eyebrow">Complete reader index</div><h2>All Reports</h2></div><div class="section-kicker">Filter the entire archive without leaving the page.</div></div>
     <div class="controls">
-      <input id="librarySearch" class="search" type="search" placeholder="Search all reports…">
+      <input id="librarySearch" class="search" type="search" placeholder="Search reports, topics, or questions…">
       <select id="sortSelect"><option value="archive">Archive order</option><option value="numdesc">Report # high → low</option><option value="numasc">Report # low → high</option><option value="title">Title A → Z</option></select>
       <button id="clearBtn" class="chip">Clear</button>
     </div>
@@ -1188,15 +1188,193 @@ CATEGORY_ORDER.forEach(c => {
   const b=document.createElement("button"); b.className="chip"; b.dataset.filter=c; b.textContent=c; chips.appendChild(b);
 });
 
-function hay(r) {
-  return [r.id,r.title,r.subtitle,r.category,...(r.tags||[])].join(" ").toLowerCase();
+/*
+  SMART SEARCH
+  -----------
+  The original search required the user's whole phrase to occur literally in
+  ID/title/subtitle/category/tags. That made natural searches such as
+  "purpose of life" return nothing.
+
+  This version keeps exact report-number/title searches, but also:
+  - normalizes punctuation and common word forms;
+  - searches individual meaningful words instead of only one literal phrase;
+  - understands a small concept/synonym map;
+  - can consume future metadata fields such as description, keywords and
+    searchTerms without another index.html change;
+  - ranks results by relevance when Archive order is selected.
+*/
+
+const SEARCH_STOP_WORDS = new Set([
+  "a","an","and","are","as","at","be","by","for","from","how","i",
+  "in","is","it","of","on","or","that","the","this","to","what",
+  "when","where","which","who","why","with","we","you","your"
+]);
+
+const SEARCH_CONCEPTS = [
+  {
+    triggers:["purpose of life","meaning of life","why are we here","why am i here","life purpose"],
+    terms:[
+      "purpose life","meaning life","university life","school life","soul",
+      "spirit","spiritual being","human experience","inner growth",
+      "consciousness","driver vehicle","graduation","life lesson",
+      "realization understanding acceptance","incarnation"
+    ]
+  },
+  {
+    triggers:["after death","what happens after death","death soul","life after death"],
+    terms:["death","soul","spirit","consciousness","body vehicle","cage","graduation"]
+  },
+  {
+    triggers:["surveillance","privacy","being watched","tracking"],
+    terms:["surveillance","privacy","tracking","camera","license plate","flock","data collection"]
+  },
+  {
+    triggers:["money","economy","financial","cost of living"],
+    terms:["money","economics","financial","bank","inflation","income","cost","price","work"]
+  }
+];
+
+/* Report-level concept labels make the search useful even when an older
+   headline never used the words a reader naturally thinks to type. */
+const REPORT_SEARCH_ALIASES = {
+  "1713":"purpose of life meaning of life ocean of love spirit consciousness source unity",
+  "1716":"purpose of life meaning of life driver vehicle soul spirit human experience body",
+  "1765":"purpose of life meaning of life why are we here university of life school of life soul lessons graduation",
+  "2026082507":"purpose of life meaning of life driver soul spirit animal instinct observer human experience",
+  "2026082703":"purpose of life meaning of life take back the wheel driver body vehicle soul spirit",
+  "2026082704":"purpose of life meaning of life challenge wrong road soul experience growth",
+  "2026082705":"purpose of life meaning of life university of life soul lessons challenge classroom spiritual growth",
+  "2026082802":"purpose of life meaning of life realization understanding acceptance graduation soul cage death",
+  "2026082805":"purpose of life meaning of life realization understanding acceptance spiritual growth door",
+  "2026083001":"purpose of life meaning of life why are we here spirit risk challenge casino human experience"
+};
+
+function normalizeSearchText(value){
+  return String(value ?? "")
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g,"")
+    .toLowerCase()
+    .replace(/[#’'`]/g,"")
+    .replace(/[^a-z0-9]+/g," ")
+    .replace(/\s+/g," ")
+    .trim();
 }
+
+function searchTokens(value){
+  return normalizeSearchText(value)
+    .split(" ")
+    .filter(Boolean)
+    .filter(token => !SEARCH_STOP_WORDS.has(token));
+}
+
+function hay(r) {
+  const extras = [
+    r.description,
+    r.summary,
+    r.keywords,
+    r.searchTerms,
+    r.search_terms,
+    r.topics,
+    REPORT_SEARCH_ALIASES[String(r.id)]
+  ];
+
+  const values = [
+    r.id, r.title, r.subtitle, r.category,
+    ...(Array.isArray(r.tags) ? r.tags : []),
+    ...extras.flatMap(v => Array.isArray(v) ? v : [v])
+  ];
+
+  return normalizeSearchText(values.filter(Boolean).join(" "));
+}
+
+function conceptTermsForQuery(query){
+  const q = normalizeSearchText(query);
+  const qTokens = new Set(searchTokens(q));
+  const terms = [];
+
+  for(const concept of SEARCH_CONCEPTS){
+    const triggered = concept.triggers.some(trigger => {
+      const t = normalizeSearchText(trigger);
+      if(q.includes(t)) return true;
+      const triggerTokens = searchTokens(t);
+      return triggerTokens.length && triggerTokens.every(token => qTokens.has(token));
+    });
+    if(triggered) terms.push(...concept.terms);
+  }
+
+  return [...new Set(terms.map(normalizeSearchText).filter(Boolean))];
+}
+
+function scoreReport(r, rawQuery){
+  const q = normalizeSearchText(rawQuery);
+  if(!q) return 1;
+
+  const text = hay(r);
+  const id = normalizeSearchText(r.id);
+  const title = normalizeSearchText(r.title);
+  const subtitle = normalizeSearchText(r.subtitle);
+  const tags = normalizeSearchText((r.tags || []).join(" "));
+  const category = normalizeSearchText(r.category);
+  const alias = normalizeSearchText(REPORT_SEARCH_ALIASES[String(r.id)] || "");
+  const tokens = searchTokens(q);
+  const concepts = conceptTermsForQuery(q);
+
+  let score = 0;
+
+  /* Exact/direct matches stay strongest. */
+  if(id === q || id === q.replace(/^report /,"")) score += 1000;
+  if(title === q) score += 600;
+  if(title.includes(q)) score += 300;
+  if(subtitle.includes(q)) score += 180;
+  if(tags.includes(q)) score += 150;
+  if(alias.includes(q)) score += 220;
+  if(text.includes(q)) score += 100;
+
+  /* Natural multi-word searches: reward each meaningful word. */
+  let tokenMatches = 0;
+  for(const token of tokens){
+    if(title.includes(token)){ score += 34; tokenMatches++; continue; }
+    if(subtitle.includes(token)){ score += 24; tokenMatches++; continue; }
+    if(tags.includes(token)){ score += 20; tokenMatches++; continue; }
+    if(alias.includes(token)){ score += 26; tokenMatches++; continue; }
+    if(category.includes(token)){ score += 12; tokenMatches++; continue; }
+    if(text.includes(token)){ score += 8; tokenMatches++; }
+  }
+
+  if(tokens.length > 1 && tokenMatches === tokens.length) score += 70;
+
+  /* Concept matches connect everyday questions to older report wording. */
+  for(const conceptTerm of concepts){
+    if(alias.includes(conceptTerm)) score += 70;
+    else if(title.includes(conceptTerm)) score += 30;
+    else if(text.includes(conceptTerm)) score += 12;
+    else {
+      const conceptTokens = searchTokens(conceptTerm);
+      if(conceptTokens.length && conceptTokens.every(token => text.includes(token))) score += 8;
+    }
+  }
+
+  return score;
+}
+
 function filtered() {
-  let arr = REPORTS.filter(r => (state.cat==="All" || r.category===state.cat) && (!state.q || hay(r).includes(state.q.toLowerCase())));
-  if(state.sort==="numdesc") arr=[...arr].sort((a,b)=>num(b)-num(a));
-  if(state.sort==="numasc") arr=[...arr].sort((a,b)=>num(a)-num(b));
-  if(state.sort==="title") arr=[...arr].sort((a,b)=>a.title.localeCompare(b.title));
-  return arr;
+  let arr = REPORTS
+    .filter(r => state.cat === "All" || r.category === state.cat)
+    .map(r => ({r, score: scoreReport(r, state.q)}))
+    .filter(item => !state.q || item.score > 0);
+
+  /* "Archive order" becomes relevance order only while searching. */
+  if(state.q && state.sort === "archive") {
+    arr.sort((a,b) => b.score - a.score || num(b.r) - num(a.r));
+  } else if(state.sort === "numdesc") {
+    arr.sort((a,b) => num(b.r) - num(a.r));
+  } else if(state.sort === "numasc") {
+    arr.sort((a,b) => num(a.r) - num(b.r));
+  } else if(state.sort === "title") {
+    arr.sort((a,b) => a.r.title.localeCompare(b.r.title));
+  }
+
+  return arr.map(item => item.r);
 }
 function cleanReportTitle(r) {
   const title = String(r.title || "");
@@ -1233,7 +1411,7 @@ function render() {
       </div>
     </a>`;
   }).join("")
-    : `<div class="empty">No reports match that search. Try a report number, person, country or broader topic.</div>`;
+    : `<div class="empty">No reports match that search. Try a report number, person, country, question or related topic.</div>`;
   document.getElementById("loadMore").style.display = state.visible < arr.length ? "block":"none";
   [...chips.querySelectorAll(".chip")].forEach(b=>b.classList.toggle("active",b.dataset.filter===state.cat));
 }
