@@ -43,7 +43,7 @@ from typing import Any, Dict, Iterable, List, Set
 BASE = Path(__file__).resolve().parent
 METADATA_PATH = Path(os.environ.get("RBJ_METADATA", BASE / "metadata.json"))
 REPORTS_PATH = Path(os.environ.get("RBJ_REPORTS", BASE / "reports.json"))
-UPDATER_PATH = BASE / "update_reports.py"
+UPDATER_PATH = BASE / "scripts" / "update_reports.py"
 
 STOP_WORDS = {
     "a","an","and","are","as","at","be","been","being","but","by","can","could",
