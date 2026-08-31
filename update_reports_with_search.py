@@ -375,10 +375,12 @@ def main():
     if not isinstance(reports, list):
         reports = []
 
+    # URLs are identifiers, not prose. Do not pass them through clean_text(),
+    # because clean_text intentionally removes URLs from searchable prose.
     reports_by_url = {
-        clean_text(r.get("url")): r
+        str(r.get("url")).strip(): r
         for r in reports
-        if isinstance(r, dict) and clean_text(r.get("url"))
+        if isinstance(r, dict) and str(r.get("url") or "").strip()
     }
 
     changed = 0
