@@ -22,12 +22,12 @@ jobs:
         with:
           python-version: "3.x"
 
-      - name: Build reports.json from Substack sitemap
-        run: python scripts/update_reports.py
+      - name: Build archive and semantic search metadata
+        run: python update_reports_with_search.py
 
       - name: Commit changes if archive changed
         run: |
-          git add reports.json
+          git add reports.json metadata.json
 
           if git diff --cached --quiet; then
             echo "No archive changes."
@@ -38,5 +38,5 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
           git commit -m "Auto-update Red Blood Journal archive"
-                git pull --rebase origin main
-                git push origin main
+          git pull --rebase origin main
+          git push origin main
