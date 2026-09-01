@@ -1,0 +1,47 @@
+name: Daily multilingual report
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "23 10 * * *"
+
+permissions:
+  contents: write
+
+jobs:
+  translate-and-publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Install translation dependencies
+        run: pip install --upgrade openai requests beautifulsoup4
+
+      - name: Translate highest-clicked untranslated report
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_MODEL: gpt-5.6-luna
+        run: python scripts/update_translations.py
+
+      - name: Commit translations if anything changed
+        run: |
+          git add es fa zh-cn translations.json
+          if git diff --cached --quiet; then
+            echo "No translation changes."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git commit -m "Publish daily multilingual report"
+          git pull --rebase origin main
+          git push origin main
