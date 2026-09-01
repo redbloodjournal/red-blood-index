@@ -209,13 +209,25 @@ def validate_translation(data, source, lang_code):
         raise ValueError("missing sections")
 
     bodies = []
+    nonempty_sections = 0
     for sec in sections:
         if not isinstance(sec, dict):
             raise ValueError("invalid section")
-        paras = sec.get("body")
-        if not isinstance(paras, list) or not paras:
-            raise ValueError("section has no paragraphs")
-        bodies.extend(str(p).strip() for p in paras if str(p).strip())
+        paras = sec.get("body", [])
+        if not isinstance(paras, list):
+            raise ValueError("section body is not a list")
+
+        cleaned = [str(p).strip() for p in paras if str(p).strip()]
+
+        # A model may occasionally emit a heading-only section.
+        # That is harmless, so validate the translation as a whole
+        # instead of failing the entire report for one empty section.
+        if cleaned:
+            nonempty_sections += 1
+            bodies.extend(cleaned)
+
+    if nonempty_sections == 0:
+        raise ValueError("translation has no non-empty sections")
 
     joined = "\n".join(bodies)
     if len(joined) < max(350, int(len(source["body"]) * 0.35)):
@@ -257,7 +269,7 @@ JSON shape:
   ]
 }}
 
-Every substantive source paragraph must appear exactly once.
+Every substantive source paragraph must appear exactly once. Do not create empty sections; if a heading has no body text, merge it with the following section.
 
 SOURCE TITLE:
 {source['title']}
