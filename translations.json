@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "selection_rule": "highest-clicked untranslated report",
+  "selection_rule": "highest-clicked untranslated numbered report from most-clicked.json",
   "languages": {
     "es": {
       "name": "Español",
@@ -24,6 +24,23 @@
         "es": "/es/1607/",
         "fa": "/fa/1607/",
         "zh-cn": "/zh-cn/1607/"
+      }
+    },
+    "1357": {
+      "title": "🩸 👁️ 🩸 #1357 The Language of Hidden Symbols",
+      "original": "https://redblood.win/p/1357-the-language-of-hidden-symbols",
+      "clicks_when_selected": 4,
+      "translated_on": "2026-09-01",
+      "status": "published",
+      "translations": {
+        "es": "/es/1357/",
+        "fa": "/fa/1357/",
+        "zh-cn": "/zh-cn/1357/"
+      },
+      "translated_titles": {
+        "es": "🩸 👁️ 🩸 #1357 El lenguaje de los símbolos ocultos",
+        "fa": "🩸 👁️ 🩸 #1357 زبان نمادهای پنهان",
+        "zh-cn": "🩸 👁️ 🩸 #1357 隐秘符号的语言"
       }
     }
   }
