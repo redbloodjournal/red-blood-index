@@ -230,12 +230,33 @@ def validate_translation(data, source, lang_code):
         raise ValueError("translation has no non-empty sections")
 
     joined = "\n".join(bodies)
-    if len(joined) < max(350, int(len(source["body"]) * 0.35)):
-        raise ValueError("translation is suspiciously short")
 
-    if lang_code == "fa" and len(re.findall(r"[\u0600-\u06FF]", joined)) < 80:
+    # Different languages have very different character densities.
+    # Chinese usually expresses the same content in far fewer characters
+    # than English, so a single 35% character-length threshold wrongly
+    # rejects valid Chinese translations.
+    min_ratio = {
+        "es": 0.35,
+        "fa": 0.28,
+        "zh-cn": 0.15,
+    }.get(lang_code, 0.30)
+
+    absolute_floor = {
+        "es": 700,
+        "fa": 600,
+        "zh-cn": 700,
+    }.get(lang_code, 500)
+
+    if len(joined) < max(absolute_floor, int(len(source["body"]) * min_ratio)):
+        raise ValueError(
+            f"translation is suspiciously short "
+            f"({len(joined)} chars; minimum "
+            f"{max(absolute_floor, int(len(source['body']) * min_ratio))})"
+        )
+
+    if lang_code == "fa" and len(re.findall(r"[\u0600-\u06FF]", joined)) < 300:
         raise ValueError("not enough Persian script")
-    if lang_code == "zh-cn" and len(re.findall(r"[\u4e00-\u9fff]", joined)) < 80:
+    if lang_code == "zh-cn" and len(re.findall(r"[\u4e00-\u9fff]", joined)) < 500:
         raise ValueError("not enough Chinese characters")
     if lang_code == "es":
         lower = " " + joined.lower() + " "
