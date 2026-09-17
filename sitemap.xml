@@ -60,4 +60,13 @@
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
+  <url>
+    <loc>https://redbloodjournal.com/courses/</loc>
+  </url>
+  <url>
+    <loc>https://redbloodjournal.com/courses/finding-yourself-through-purpose/</loc>
+  </url>
+  <url>
+    <loc>https://redbloodjournal.com/courses/finding-yourself-through-purpose/step-1-happiness-purpose/</loc>
+  </url>
 </urlset>
