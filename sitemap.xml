@@ -117,4 +117,14 @@
   <url>
     <loc>https://redbloodjournal.com/courses/finding-yourself-through-purpose/step-9-purpose-is-not-a-job-and-desire-is-not-purpose/worksheet/</loc>
   </url>
+
+  <url>
+    <loc>https://redbloodjournal.com/ar/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url><loc>https://redbloodjournal.com/ar/1399/</loc></url>
+  <url><loc>https://redbloodjournal.com/ar/1396/</loc></url>
+  <url><loc>https://redbloodjournal.com/ar/1397/</loc></url>
+  <url><loc>https://redbloodjournal.com/ar/1364/</loc></url>
 </urlset>
