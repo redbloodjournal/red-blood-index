@@ -25,6 +25,8 @@ LANGUAGES = {
         "english": "Spanish",
         "intro": "Informes seleccionados de Red Blood Journal traducidos del original en inglés.",
         "read": "Leer traducción →",
+        "image": "/assets/share-es.png",
+        "og_image": "https://redbloodjournal.com/assets/share-es.png",
     },
     "fa": {
         "name": "فارسی",
@@ -33,6 +35,8 @@ LANGUAGES = {
         "english": "Persian",
         "intro": "گزارش‌های برگزیدهٔ رد بلاد ژورنال، ترجمه‌شده از نسخهٔ اصلی انگلیسی.",
         "read": "خواندن ترجمه ←",
+        "image": "/assets/share-fa-v2.jpg",
+        "og_image": "https://redbloodjournal.com/assets/share-fa-v2.jpg",
     },
     "zh-cn": {
         "name": "简体中文",
@@ -41,6 +45,8 @@ LANGUAGES = {
         "english": "Simplified Chinese",
         "intro": "Red Blood Journal 精选报道的简体中文译文。",
         "read": "阅读译文 →",
+        "image": "/assets/share-zh-cn.png",
+        "og_image": "https://redbloodjournal.com/assets/share-zh-cn.png",
     },
     "ar": {
         "name": "العربية",
@@ -49,6 +55,8 @@ LANGUAGES = {
         "english": "Arabic",
         "intro": "تقارير مختارة من Red Blood Journal مترجمة من النسخة الأصلية الإنجليزية.",
         "read": "قراءة الترجمة ←",
+        "image": "/assets/share-ar.svg",
+        "og_image": "https://redbloodjournal.com/assets/share-ar.svg",
     },
 }
 
@@ -434,11 +442,19 @@ def landing_html(lang_code, translations):
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{lang['name']} | Red Blood Journal</title><link rel="icon" href="/favicon.png">
+<meta name="description" content="{html.escape(lang['intro'])}">
+<meta property="og:type" content="website">
+<meta property="og:title" content="{lang['name']} | Red Blood Journal">
+<meta property="og:description" content="{html.escape(lang['intro'])}">
+<meta property="og:image" content="{lang['og_image']}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="{lang['og_image']}">
 <style>
 body{{margin:0;background:#0B0B0B;color:#F4EFE3;font-family:Inter,system-ui,sans-serif;line-height:1.6}}
 a{{color:inherit;text-decoration:none}}.wrap{{width:min(1000px,calc(100% - 28px));margin:auto}}
 header{{border-bottom:1px solid #3A3A3A;padding:18px 0}}nav{{display:flex;gap:16px;flex-wrap:wrap}}
 .hero{{padding:58px 0 24px}}h1{{font-size:clamp(42px,7vw,70px);margin:0 0 12px}}p{{color:#C9C2B8}}
+.lang-cover{{display:block;width:100%;aspect-ratio:1200/630;object-fit:cover;border:1px solid #3A3A3A;border-radius:18px;margin:8px 0 28px;background:#111}}
 .card{{display:block;border:1px solid #3A3A3A;background:#171717;border-radius:18px;padding:22px;margin:22px 0}}
 .card:hover{{border-color:#E0B323}}.num{{color:#D71920;font-weight:900}}.go{{color:#E0B323;font-weight:800}}
 </style></head>
@@ -446,6 +462,7 @@ header{{border-bottom:1px solid #3A3A3A;padding:18px 0}}nav{{display:flex;gap:16
 <header><div class="wrap"><a href="/"><strong>♦ RED BLOOD JOURNAL 🌊</strong></a>
 <nav><a href="/">English</a><a href="/es/">Español</a><a href="/fa/">فارسی</a><a href="/zh-cn/">简体中文</a><a href="/ar/">العربية</a></nav></div></header>
 <main class="wrap"><section class="hero"><h1>{lang['name']}</h1><p>{lang['intro']}</p></section>
+<img class="lang-cover" src="{lang['image']}" alt="{lang['name']} — Red Blood Journal" loading="eager" decoding="async">
 {''.join(cards) if cards else '<p>No translations published yet.</p>'}
 </main></body></html>"""
 
