@@ -42,6 +42,14 @@ LANGUAGES = {
         "intro": "Red Blood Journal 精选报道的简体中文译文。",
         "read": "阅读译文 →",
     },
+    "ar": {
+        "name": "العربية",
+        "html_lang": "ar",
+        "dir": "rtl",
+        "english": "Arabic",
+        "intro": "تقارير مختارة من Red Blood Journal مترجمة من النسخة الأصلية الإنجليزية.",
+        "read": "قراءة الترجمة ←",
+    },
 }
 
 HEADERS = {
@@ -66,7 +74,12 @@ def write_json(path, data):
 
 def canonicalize_url(url):
     p = urlparse(url)
-    return urlunparse((p.scheme or "https", p.netloc, p.path, "", "", ""))
+    path = p.path or ""
+    if p.netloc == "open.substack.com":
+        m = re.search(r"/p/([^/?#]+)", path)
+        if m:
+            return f"https://redblood.win/p/{m.group(1)}"
+    return urlunparse((p.scheme or "https", p.netloc, path, "", "", ""))
 
 
 def report_id_from_url(url):
@@ -75,13 +88,14 @@ def report_id_from_url(url):
     return m.group(1) if m else None
 
 
-def choose_report(click_data, translations):
+def choose_reports(click_data, translations):
     already = {str(x) for x in translations.get("reports", {}).keys()}
     candidates = sorted(
         click_data.get("reports", []),
         key=lambda x: int(x.get("clicks", 0)),
         reverse=True,
     )
+    out = []
     for item in candidates:
         url = canonicalize_url(item.get("url", ""))
         rid = report_id_from_url(url)
@@ -90,8 +104,8 @@ def choose_report(click_data, translations):
             continue
         if rid in already:
             continue
-        return {"id": rid, "url": url, "clicks": int(item.get("clicks", 0))}
-    return None
+        out.append({"id": rid, "url": url, "clicks": int(item.get("clicks", 0))})
+    return out
 
 
 def clean_text(value):
@@ -239,12 +253,14 @@ def validate_translation(data, source, lang_code):
         "es": 0.35,
         "fa": 0.28,
         "zh-cn": 0.15,
+        "ar": 0.28,
     }.get(lang_code, 0.30)
 
     absolute_floor = {
         "es": 700,
         "fa": 600,
         "zh-cn": 700,
+        "ar": 600,
     }.get(lang_code, 500)
 
     if len(joined) < max(absolute_floor, int(len(source["body"]) * min_ratio)):
@@ -258,6 +274,8 @@ def validate_translation(data, source, lang_code):
         raise ValueError("not enough Persian script")
     if lang_code == "zh-cn" and len(re.findall(r"[\u4e00-\u9fff]", joined)) < 500:
         raise ValueError("not enough Chinese characters")
+    if lang_code == "ar" and len(re.findall(r"[\u0600-\u06FF]", joined)) < 300:
+        raise ValueError("not enough Arabic script")
     if lang_code == "es":
         lower = " " + joined.lower() + " "
         markers = sum(lower.count(w) for w in [" que ", " de ", " la ", " el ", " una ", " los "])
@@ -369,7 +387,7 @@ footer{{border-top:1px solid var(--line);margin-top:52px;padding:30px 0 48px;col
 <body>
 <header class="top"><div class="nav">
 <a class="brand" href="/">♦ RED BLOOD JOURNAL 🌊</a>
-<nav class="links"><a href="/">English</a><a href="/es/">Español</a><a href="/fa/">فارسی</a><a href="/zh-cn/">简体中文</a></nav>
+<nav class="links"><a href="/">English</a><a href="/es/">Español</a><a href="/fa/">فارسی</a><a href="/zh-cn/">简体中文</a><a href="/ar/">العربية</a></nav>
 </div></header>
 <main class="container">
 <section class="hero">
@@ -426,7 +444,7 @@ header{{border-bottom:1px solid #3A3A3A;padding:18px 0}}nav{{display:flex;gap:16
 </style></head>
 <body>
 <header><div class="wrap"><a href="/"><strong>♦ RED BLOOD JOURNAL 🌊</strong></a>
-<nav><a href="/">English</a><a href="/es/">Español</a><a href="/fa/">فارسی</a><a href="/zh-cn/">简体中文</a></nav></div></header>
+<nav><a href="/">English</a><a href="/es/">Español</a><a href="/fa/">فارسی</a><a href="/zh-cn/">简体中文</a><a href="/ar/">العربية</a></nav></div></header>
 <main class="wrap"><section class="hero"><h1>{lang['name']}</h1><p>{lang['intro']}</p></section>
 {''.join(cards) if cards else '<p>No translations published yet.</p>'}
 </main></body></html>"""
@@ -442,14 +460,27 @@ def main():
 
     click_data = load_json(MOST_CLICKED)
     translations = load_json(TRANSLATIONS)
-    chosen = choose_report(click_data, translations)
+    candidates = choose_reports(click_data, translations)
 
-    if not chosen:
+    if not candidates:
         print("No untranslated numbered reports remain in most-clicked.json.")
         return 0
 
+    chosen = None
+    source = None
+    for candidate in candidates:
+        try:
+            print(f"Trying #{candidate['id']} ({candidate['clicks']} clicks): {candidate['url']}")
+            source = extract_source(candidate["url"])
+            chosen = candidate
+            break
+        except Exception as exc:
+            print(f"Skipping #{candidate['id']} because the source could not be fetched: {exc}")
+
+    if not chosen or source is None:
+        raise RuntimeError("No untranslated candidate could be fetched successfully.")
+
     print(f"Selected #{chosen['id']} ({chosen['clicks']} clicks): {chosen['url']}")
-    source = extract_source(chosen["url"])
     print("Fetched source:", source["title"])
     print("Source body length:", len(source["body"]))
 
@@ -488,7 +519,7 @@ def main():
         folder.mkdir(parents=True, exist_ok=True)
         (folder / "index.html").write_text(landing_html(code, translations), encoding="utf-8")
 
-    print(f"Published #{rid} in Spanish, Persian, and Simplified Chinese.")
+    print(f"Published #{rid} in Spanish, Persian, Simplified Chinese, and Arabic.")
     return 0
 
 
