@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="t d">
+<title id="t">Red Blood Journal — العربية</title>
+<desc id="d">سجل. صوت. هدف.</desc>
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#06111c"/><stop offset="1" stop-color="#090909"/></linearGradient>
+  <radialGradient id="sun" cx="64%" cy="67%" r="38%"><stop offset="0" stop-color="#ffd56a" stop-opacity=".95"/><stop offset=".22" stop-color="#e59c31" stop-opacity=".55"/><stop offset=".6" stop-color="#173b5e" stop-opacity=".25"/><stop offset="1" stop-color="#06111c" stop-opacity="0"/></radialGradient>
+  <linearGradient id="earth" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#0e2741"/><stop offset=".55" stop-color="#173b5e"/><stop offset="1" stop-color="#0b1826"/></linearGradient>
+  <filter id="glow"><feGaussianBlur stdDeviation="10"/></filter>
+</defs>
+<rect width="1200" height="630" fill="url(#bg)"/>
+<circle cx="760" cy="410" r="245" fill="url(#earth)" stroke="#4aa6d8" stroke-width="4"/>
+<ellipse cx="760" cy="410" rx="245" ry="82" fill="none" stroke="#2d6b94" stroke-width="2" opacity=".6"/>
+<ellipse cx="760" cy="410" rx="88" ry="245" fill="none" stroke="#2d6b94" stroke-width="2" opacity=".45"/>
+<circle cx="760" cy="410" r="245" fill="url(#sun)"/>
+<circle cx="770" cy="313" r="22" fill="#ffd978" filter="url(#glow)" opacity=".85"/>
+<path d="M0 500 C150 430 250 455 340 510 C430 560 515 540 600 585 L600 630 H0Z" fill="#050505"/>
+<path d="M105 505 C75 430 92 355 150 330 C130 386 155 407 190 425 C140 425 125 460 105 505Z" fill="#7d1115"/>
+<path d="M105 500 C120 430 95 390 65 350 M105 500 C135 438 175 404 225 385 M105 500 C80 440 45 418 15 414" fill="none" stroke="#b51217" stroke-width="8" stroke-linecap="round"/>
+<g fill="#e2272d">
+  <path d="M602 74 C602 43 627 20 642 0 C659 26 684 48 684 78 C684 109 666 128 643 128 C620 128 602 107 602 74Z"/>
+</g>
+<text x="600" y="195" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="70" font-weight="900" letter-spacing="2">
+  <tspan fill="#d71920">RED BLOOD</tspan><tspan fill="#f4efe3"> JOURNAL</tspan>
+</text>
+<line x1="287" y1="218" x2="913" y2="218" stroke="#b51217" stroke-width="3"/>
+<text x="600" y="278" text-anchor="middle" direction="rtl" unicode-bidi="bidi-override" font-family="Arial, Tahoma, sans-serif" font-size="46" font-weight="700" fill="#f4efe3">سجل. صوت. هدف.</text>
+<text x="1110" y="72" text-anchor="end" direction="rtl" font-family="Arial, Tahoma, sans-serif" font-size="28" fill="#e0b323">العربية</text>
+<text x="600" y="588" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="20" letter-spacing="4" fill="#c9c2b8">REDBLOODJOURNAL.COM</text>
+</svg>
