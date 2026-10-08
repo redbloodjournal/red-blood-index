@@ -1627,7 +1627,7 @@ async function loadReports(){
     // Course lessons hosted on this site may be published before the Substack archive feed updates.
     // Keep Lesson 9 discoverable in Latest and All Reports without creating a duplicate later.
     const lesson9Url = "https://redbloodjournal.com/courses/finding-yourself-through-purpose/step-9-purpose-is-not-a-job-and-desire-is-not-purpose/";
-    if (!REPORTS.some(r => /lesson[ -]?9 of 12/i.test(String(r.title || "")) || String(r.url || "").replace(/\\/$/, "") === lesson9Url.replace(/\\/$/, ""))) {
+    if (!REPORTS.some(r => /lesson[ -]?9 of 12/i.test(String(r.title || "")) || String(r.url || "").replace(/\/$/, "") === lesson9Url.replace(/\/$/, ""))) {
       REPORTS.unshift({
         id: "2026100809",
         title: "🩸 💼 🧠 🌊 Finding Yourself Through Purpose — Lesson 9 of 12",
