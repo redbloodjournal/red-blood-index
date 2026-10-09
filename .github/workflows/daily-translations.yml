@@ -25,6 +25,22 @@ jobs:
       - name: Install translation dependencies
         run: pip install --upgrade openai requests beautifulsoup4
 
+      - name: Backfill GA4 tracking on existing language pages
+        run: python scripts/backfill_translation_analytics.py
+
+      - name: Publish GA4 backfill independently
+        run: |
+          git add es fa zh-cn ar
+          if git diff --cached --quiet; then
+            echo "All existing language pages already have GA4."
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git commit -m "Enable GA4 on existing language pages"
+            git pull --rebase origin main
+            git push origin main
+          fi
+
       - name: Translate highest-clicked untranslated report
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
