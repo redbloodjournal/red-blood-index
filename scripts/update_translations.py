@@ -364,6 +364,14 @@ def page_html(source_url, lang_code, t):
     return f"""<!doctype html>
 <html lang="{lang['html_lang']}" dir="{lang['dir']}">
 <head>
+<!-- Red Blood Journal GA4: multilingual readership -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-16V1EX0PXJ"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-16V1EX0PXJ');
+</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>{html.escape(t['title'])} | Red Blood Journal</title>
@@ -440,6 +448,14 @@ def landing_html(lang_code, translations):
     return f"""<!doctype html>
 <html lang="{lang['html_lang']}" dir="{lang['dir']}">
 <head>
+<!-- Red Blood Journal GA4: multilingual readership -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-16V1EX0PXJ"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-16V1EX0PXJ');
+</script>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{lang['name']} | Red Blood Journal</title><link rel="icon" href="/favicon.png">
 <meta name="description" content="{html.escape(lang['intro'])}">
