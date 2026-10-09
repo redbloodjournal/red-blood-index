@@ -368,7 +368,7 @@ def page_html(source_url, lang_code, t):
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-16V1EX0PXJ"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
+  function gtag(){{dataLayer.push(arguments);}}
   gtag('js', new Date());
   gtag('config', 'G-16V1EX0PXJ');
 </script>
@@ -452,7 +452,7 @@ def landing_html(lang_code, translations):
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-16V1EX0PXJ"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
+  function gtag(){{dataLayer.push(arguments);}}
   gtag('js', new Date());
   gtag('config', 'G-16V1EX0PXJ');
 </script>
