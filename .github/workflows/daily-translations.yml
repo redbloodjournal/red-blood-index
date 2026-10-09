@@ -41,6 +41,9 @@ jobs:
             git push origin main
           fi
 
+      - name: Validate translation generator syntax
+        run: python -m py_compile scripts/update_translations.py scripts/backfill_translation_analytics.py
+
       - name: Translate highest-clicked untranslated report
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
