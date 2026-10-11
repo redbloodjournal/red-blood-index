@@ -925,6 +925,23 @@ footer{
     display:block;
   }
 }
+
+/* Reusable homepage featured investigation */
+.rbj-featured{padding:28px 0 54px}
+.rbj-featured-card{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);overflow:hidden;border:1px solid rgba(212,171,104,.38);border-radius:20px;background:linear-gradient(135deg,#1b1d24,#100f13);box-shadow:0 18px 55px rgba(0,0,0,.22)}
+.rbj-featured-picture{display:block;position:relative;min-height:275px;overflow:hidden}
+.rbj-featured-picture img{width:100%;height:100%;display:block;object-fit:cover;transition:transform .3s ease}
+.rbj-featured-picture:hover img{transform:scale(1.025)}
+.rbj-featured-copy{padding:clamp(22px,3.4vw,48px);display:flex;flex-direction:column;justify-content:center;gap:15px}
+.rbj-featured-kicker{font:800 12px/1.6 Arial,sans-serif;text-transform:uppercase;letter-spacing:.16em;color:#dcb77b}
+.rbj-featured-title{font-size:clamp(29px,3.4vw,48px);line-height:1.1;letter-spacing:-.035em;margin:0;color:#faf4ed}
+.rbj-featured-description{line-height:1.7;color:#d3cfd1;font-size:16px;margin:0}
+.rbj-featured-action{display:inline-flex;align-self:flex-start;gap:9px;align-items:center;text-decoration:none;padding:12px 18px;border:1px solid #d4a46c;border-radius:8px;background:#96383b;color:#fff;font:700 14px Arial,sans-serif}
+.rbj-featured-action:hover{background:#b14449}
+.rbj-featured-languages{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;margin-top:3px;font:13px Arial,sans-serif;color:#b5adb5}
+.rbj-featured-languages a{color:#e4c99d;text-decoration:underline;text-underline-offset:3px}
+@media(max-width:800px){.rbj-featured-card{grid-template-columns:1fr}.rbj-featured-picture{aspect-ratio:16/9;min-height:0}.rbj-featured-copy{padding:25px}.rbj-featured{padding-bottom:28px}}
+@media(prefers-reduced-motion:reduce){.rbj-featured-picture img{transition:none}}
 </style>
 </head>
 <body>
@@ -966,6 +983,30 @@ footer{
 linear-gradient(180deg,transparent 0%,transparent 45%,rgba(15,111,123,.08) 46%,rgba(15,111,123,.08) 50%,transparent 51%);
 opacity:.8"></div>
 
+
+<section class="rbj-featured" id="featured-investigation" aria-labelledby="featured-investigation-title">
+  <div class="container">
+    <article class="rbj-featured-card">
+      <a class="rbj-featured-picture" href="/reports/the-architecture-of-invisible-power/" aria-label="Read The Architecture of Invisible Power">
+        <img src="/assets/reports/architecture-of-invisible-power/thumbnail.png" alt="The Architecture of Invisible Power — City of London, Vatican and Order of Malta" loading="eager" decoding="async" width="1648" height="928">
+      </a>
+      <div class="rbj-featured-copy">
+        <div class="rbj-featured-kicker">Featured investigation · History, power &amp; influence</div>
+        <h2 class="rbj-featured-title" id="featured-investigation-title">Governments Fall. Who Keeps the Power?</h2>
+        <p class="rbj-featured-description">Empires collapsed. Monarchies disappeared. Yet three institutions survived centuries of political upheaval. What explains their extraordinary endurance?</p>
+        <a class="rbj-featured-action" href="/reports/the-architecture-of-invisible-power/">Explore the investigation <span aria-hidden="true">↗</span></a>
+        <nav class="rbj-featured-languages" aria-label="Read this investigation in another language">
+          <span>Read in:</span>
+          <a href="/reports/the-architecture-of-invisible-power/" lang="en">English</a>
+          <a href="/es/reports/the-architecture-of-invisible-power/" lang="es">Español</a>
+          <a href="/fa/reports/the-architecture-of-invisible-power/" lang="fa" dir="rtl">فارسی</a>
+          <a href="/zh-cn/reports/the-architecture-of-invisible-power/" lang="zh-CN">简体中文</a>
+          <a href="/ar/reports/the-architecture-of-invisible-power/" lang="ar" dir="rtl">العربية</a>
+        </nav>
+      </div>
+    </article>
+  </div>
+</section>
 <section class="section" id="latest">
   <div class="container">
     <div class="section-head"><div><div class="eyebrow">Newest in the archive</div><h2>Latest Reports</h2></div><div class="section-kicker">A visual entry point into the newest Red Blood Journal publications.</div></div>
