@@ -531,6 +531,25 @@
         "zh-cn": "🩸 🌊 🩸 #1216——卵子的另一面",
         "ar": "🩸 🌊 🩸 #1216 — الجانب الآخر من البيضة"
       }
+    },
+    "1280": {
+      "title": "🩸 🎭 #1280 THE COSTUME SHOP OF POWER",
+      "original": "https://redblood.win/p/1280-the-costume-shop-of-power",
+      "clicks_when_selected": 1,
+      "translated_on": "2026-10-11",
+      "status": "published",
+      "translations": {
+        "es": "/es/1280/",
+        "fa": "/fa/1280/",
+        "zh-cn": "/zh-cn/1280/",
+        "ar": "/ar/1280/"
+      },
+      "translated_titles": {
+        "es": "🩸 🎭 #1280 LA TIENDA DE DISFRACES DEL PODER",
+        "fa": "🩸 🎭 #1280 دکانِ لباس‌های قدرت",
+        "zh-cn": "🩸 🎭 #1280 权力的服装店",
+        "ar": "🩸 🎭 #1280 متجر القوة للأزياء"
+      }
     }
   }
 }
