@@ -550,6 +550,25 @@
         "zh-cn": "🩸 🎭 #1280 权力的服装店",
         "ar": "🩸 🎭 #1280 متجر القوة للأزياء"
       }
+    },
+    "1290": {
+      "title": "🩸 🌊 #1290 – The Ocean Conversation",
+      "original": "https://redblood.win/p/1290-the-ocean-conversation",
+      "clicks_when_selected": 1,
+      "translated_on": "2026-10-12",
+      "status": "published",
+      "translations": {
+        "es": "/es/1290/",
+        "fa": "/fa/1290/",
+        "zh-cn": "/zh-cn/1290/",
+        "ar": "/ar/1290/"
+      },
+      "translated_titles": {
+        "es": "🩸 🌊 #1290 – La conversación del océano",
+        "fa": "🩸 🌊 #1290 – گفت‌وگوی اقیانوس",
+        "zh-cn": "🩸 🌊 #1290——海洋对话",
+        "ar": "🩸 🌊 #1290 – حوار المحيط"
+      }
     }
   }
 }
