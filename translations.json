@@ -569,6 +569,25 @@
         "zh-cn": "🩸 🌊 #1290——海洋对话",
         "ar": "🩸 🌊 #1290 – حوار المحيط"
       }
+    },
+    "1333": {
+      "title": "🩸 🧠 🩸 #1333 The Indoctrinated Brain: Memory, Fear, and the Battle for Human Consciousness",
+      "original": "https://redblood.win/p/1333-the-indoctrinated-brain-memory",
+      "clicks_when_selected": 1,
+      "translated_on": "2026-10-13",
+      "status": "published",
+      "translations": {
+        "es": "/es/1333/",
+        "fa": "/fa/1333/",
+        "zh-cn": "/zh-cn/1333/",
+        "ar": "/ar/1333/"
+      },
+      "translated_titles": {
+        "es": "🩸 🧠 🩸 #1333 El cerebro adoctrinado: la memoria, el miedo y la batalla por la conciencia humana",
+        "fa": "🩸 🧠 🩸 #1333 مغز تلقین‌شده: حافظه، ترس و نبرد برای آگاهی انسان",
+        "zh-cn": "🩸 🧠 🩸 #1333 被灌输的头脑：记忆、恐惧与人类意识之战",
+        "ar": "🩸 🧠 🩸 #1333 الدماغ المُلقَّن: الذاكرة والخوف والمعركة من أجل الوعي البشري"
+      }
     }
   }
 }
