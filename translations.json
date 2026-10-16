@@ -626,6 +626,25 @@
         "zh-cn": "🩸 🧠 🎓 #1345 似曾相识：被遗忘教室的记忆",
         "ar": "🩸 🧠 🎓 #1345 ديجا فو: ذكرى فصل دراسي منسي"
       }
+    },
+    "1350": {
+      "title": "🩸 🌊 🩸 #1350 The Ocean They Cannot Divide",
+      "original": "https://redblood.win/p/1350-the-ocean-they-cannot-divide",
+      "clicks_when_selected": 1,
+      "translated_on": "2026-10-16",
+      "status": "published",
+      "translations": {
+        "es": "/es/1350/",
+        "fa": "/fa/1350/",
+        "zh-cn": "/zh-cn/1350/",
+        "ar": "/ar/1350/"
+      },
+      "translated_titles": {
+        "es": "🩸 🌊 🩸 #1350 El océano que no pueden dividir",
+        "fa": "🩸 🌊 🩸 #1350 اقیانوسی که نمی‌توانند تقسیمش کنند",
+        "zh-cn": "🩸 🌊 🩸 #1350 他们无法分割的海洋",
+        "ar": "🩸 🌊 🩸 #1350 المحيط الذي لا يستطيعون تقسيمه"
+      }
     }
   }
 }
