@@ -645,6 +645,25 @@
         "zh-cn": "🩸 🌊 🩸 #1350 他们无法分割的海洋",
         "ar": "🩸 🌊 🩸 #1350 المحيط الذي لا يستطيعون تقسيمه"
       }
+    },
+    "1365": {
+      "title": "🩸 🧠 #1365 🧠 The Missing Subject in the University of Life",
+      "original": "https://redblood.win/p/1365-the-missing-subject-in-the-university",
+      "clicks_when_selected": 1,
+      "translated_on": "2026-10-17",
+      "status": "published",
+      "translations": {
+        "es": "/es/1365/",
+        "fa": "/fa/1365/",
+        "zh-cn": "/zh-cn/1365/",
+        "ar": "/ar/1365/"
+      },
+      "translated_titles": {
+        "es": "🩸 🧠 #1365 🧠 El sujeto ausente en la Universidad de la Vida",
+        "fa": "🩸 🧠 #1365 🧠 موضوع گمشده در دانشگاه زندگی",
+        "zh-cn": "🩸 🧠 #1365 🧠 生命大学中缺失的科目",
+        "ar": "🩸 🧠 #1365 🧠 الموضوع المفقود في جامعة الحياة"
+      }
     }
   }
 }
