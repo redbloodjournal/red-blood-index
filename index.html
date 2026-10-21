@@ -1197,7 +1197,14 @@ let REPORTS = [];
 const CATEGORY_ORDER = ["Politics & Geopolitics", "Power, Intelligence & Media", "Money, Economics & Work", "Technology, AI & Privacy", "Health, Medicine & Science", "Spirituality & Consciousness", "Society, Psychology & Life", "History, Culture & Religion", "Investigations & Special Reports"];
 let state = {q:"", cat:"All", visible:40, sort:"archive"};
 
-const esc = s => String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+// Decode numeric HTML entities from imported report metadata before escaping for safe display.
+const esc = s => String(s??"")
+  .replace(/&#(?:x([0-9a-fA-F]+)|([0-9]+));/g, (match, hex, dec) => {
+    const code = parseInt(hex ?? dec, hex ? 16 : 10);
+    return code > 0 && code <= 0x10FFFF && !(code >= 0xD800 && code <= 0xDFFF)
+      ? String.fromCodePoint(code) : match;
+  })
+  .replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
 const num = r => parseInt(String(r.id).replace(/\D/g,"")) || 0;
 
 function storyHTML(r) {
