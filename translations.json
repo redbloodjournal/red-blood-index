@@ -740,6 +740,25 @@
         "zh-cn": "🩸 ⚖️ #1609——消耗战：一篇关于权力、资源与物质世界的观点",
         "ar": "🩸 ⚖️ #1609 – حروب الاستنزاف: رأي في القوة والموارد والعالم المادي"
       }
+    },
+    "1664": {
+      "title": "🩸 ♟️ #1664 – When the Chessboard Speaks",
+      "original": "https://redblood.win/p/1664-when-the-chessboard-speaks",
+      "clicks_when_selected": 1,
+      "translated_on": "2026-10-22",
+      "status": "published",
+      "translations": {
+        "es": "/es/1664/",
+        "fa": "/fa/1664/",
+        "zh-cn": "/zh-cn/1664/",
+        "ar": "/ar/1664/"
+      },
+      "translated_titles": {
+        "es": "🩸 ♟️ #1664 – Cuando habla el tablero de ajedrez",
+        "fa": "🩸 ♟️ #1664 – وقتی صفحهٔ شطرنج سخن می‌گوید",
+        "zh-cn": "🩸 ♟️ #1664 – 当棋盘开口说话",
+        "ar": "🩸 ♟️ #1664 – عندما تتحدث رقعة الشطرنج"
+      }
     }
   }
 }
