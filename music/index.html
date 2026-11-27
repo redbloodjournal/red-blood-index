@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Red Blood Music | Red Blood Journal</title>
+<meta name="description" content="Original songs inspired by Red Blood Journal reports. Listen through external Suno players and explore the journalism behind the music.">
+<link rel="canonical" href="https://redbloodjournal.com/music/">
+<link rel="icon" type="image/png" href="/favicon.png">
+<meta name="theme-color" content="#0B0B0B">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-16V1EX0PXJ"></script>
+<script>
+window.dataLayer=window.dataLayer||[];
+function gtag(){dataLayer.push(arguments);}
+gtag('js',new Date());
+gtag('config','G-16V1EX0PXJ');
+</script>
+<style>
+:root{color-scheme:dark;--bg:#0B0B0B;--panel:#171717;--line:#3A3A3A;--text:#F4EFE3;--muted:#C9C2B8;--gold:#E0B323;--red:#D71920}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(circle at 85% 0,rgba(181,18,23,.15),transparent 32%),var(--bg);color:var(--text);font:16px/1.6 Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
+.wrap{width:min(960px,calc(100% - 32px));margin:auto}
+header{border-bottom:1px solid var(--line);background:#111}
+nav{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;padding:18px 0}
+a{color:var(--gold);text-underline-offset:4px}
+a:focus-visible{outline:2px solid var(--gold);outline-offset:4px}
+.brand{color:var(--text);font-weight:900;letter-spacing:.12em;text-decoration:none;font-size:14px}
+.brand span{color:var(--red)}
+main{padding:54px 0 64px}
+.eyebrow{color:#ff777b;font-weight:800;letter-spacing:.15em;text-transform:uppercase;font-size:12px}
+h1{font-size:clamp(42px,7vw,72px);letter-spacing:-.045em;line-height:1.05;margin:12px 0}
+h2{font-size:clamp(24px,4vw,34px);line-height:1.2;margin:10px 0}
+h3{font-size:21px;margin:0}
+p{color:var(--muted);margin:8px 0 18px}
+.report{margin-top:32px;border:1px solid var(--line);border-radius:18px;background:var(--panel);padding:clamp(16px,4vw,30px)}
+.track{border-top:1px solid var(--line);padding-top:20px;margin-top:22px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px}
+.track p{margin:4px 0;font-size:14px}
+.listen{display:inline-block;padding:11px 16px;border:1px solid var(--gold);border-radius:9px;color:var(--gold);font-weight:700;text-decoration:none}
+.listen:hover{background:#28220f}
+.note{font-size:13px;margin-top:20px}
+footer{border-top:1px solid var(--line);padding:22px 0;color:var(--muted);font-size:14px}
+@media(max-width:520px){main{padding-top:32px}.listen{width:100%;text-align:center}}
+</style>
+</head>
+<body>
+<header><nav class="wrap" aria-label="Music navigation"><a class="brand" href="/"><span>♦</span> RED BLOOD JOURNAL 🌊</a><a href="/#library">Browse all reports</a></nav></header>
+<main class="wrap">
+<div class="eyebrow">Original music inspired by our reports</div>
+<h1>Red Blood Music</h1>
+<p>Explore the ideas behind Red Blood Journal through music. Each song is a companion to the journalism, not a replacement for the complete report.</p>
+<section class="report" aria-labelledby="driverless-title">
+<div class="eyebrow">Spirituality &amp; Consciousness</div>
+<h2 id="driverless-title">The Driverless Mind</h2>
+<p>A musical exploration of independent thought, personal purpose and discovering the best friend within.</p>
+<a href="/?q=The%20Driverless%20Mind#library">Find the report in our archive</a>
+<article class="track">
+<div><h3>I WAS ALWAYS HERE</h3><p>Melodic Afro House / Afro Soul · 4:27</p></div>
+<a class="listen" href="https://suno.com/embed/77c64bfe-4089-4364-8155-ae3383821bb8" target="_blank" rel="noopener noreferrer" data-song="I WAS ALWAYS HERE">Listen on Suno ↗</a>
+</article>
+<p class="note">Listening opens Suno's external player in a new tab. Audio is hosted and streamed by Suno.</p>
+</section>
+</main>
+<footer><div class="wrap">🩸🌊❤️✨ — Ocean of Positivity · <a href="/">Return to Red Blood Journal</a></div></footer>
+<script>
+document.querySelectorAll('a[data-song]').forEach(function(link){
+  link.addEventListener('click',function(){
+    if(typeof gtag==='function')gtag('event','music_link_click',{song_title:link.dataset.song,link_url:link.href});
+  });
+});
+</script>
+</body>
+</html>
